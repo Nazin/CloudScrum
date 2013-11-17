@@ -1,0 +1,57 @@
+#global-loading {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 999;
+    text-align: center;
+}
+
+#global-loading > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.backlog-stories.active {
+    margin-right: 50px;
+}
+
+.backlog-stories .sortable-placeholder {
+    border: 1px dotted #ecf0f1;
+}
+
+.backlog-story > .panel-heading {
+    cursor: move;
+}
+
+.backlog-story.disabled > .panel-heading {
+    cursor: auto;
+}
+
+.backlog-story.ruler {
+    border: 0;
+    position: relative;
+    height: 2px;
+    overflow: visible;
+}
+
+.backlog-story.ruler > .ruler {
+    position: absolute;
+    border: 1px solid #f39c12;
+    right: -50px;
+    left: 0;
+    cursor: n-resize;
+}
+
+.backlog-story.ruler > .ruler > .points {
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+}
+
+.backlog-story .badge {
+    float: right;
+}
