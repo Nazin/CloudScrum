@@ -6,6 +6,7 @@
     <div class="panel-group" id="accordion" ui-sortable="sortableOptions" ng-model="stories">
         <div class="panel panel-default backlog-story" ng-repeat="story in stories" ng-class="{ disabled: planning&&!story.ruler, ruler: story.ruler }">
             <div class="ruler" ng-if="story.ruler">
+                <div class="iteration badge badge-success">Iteration {{story.iteration}}</div>
                 <div class="points badge badge-success">{{story.points}}</div>
             </div>
             <div class="panel-heading" ng-if="!story.ruler">

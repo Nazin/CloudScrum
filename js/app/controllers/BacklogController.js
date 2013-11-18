@@ -16,14 +16,20 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
     $scope.sortableOptions = {
         stop: function(e, ui) {
 
-            var sp = 0;
+            var sp = 0, it = 1;
 
             for (var i = 0; i < $scope.stories.length; i++) {
                 if (typeof $scope.stories[i].ruler === 'undefined') {
                     sp += $scope.stories[i].estimate;
                 } else {
+
                     $scope.stories[i].points = sp;
-                    $('.backlog-story:eq(' + i + ')').find('.points').text(sp);//TODO add label with iteration number on left side
+                    $scope.stories[i].iteration = it++;
+
+                    var tmp = $('.backlog-story:eq(' + i + ')');
+                    tmp.find('.points').text(sp);
+                    tmp.find('.iteration').text('Iteration ' + $scope.stories[i].iteration);
+
                     sp = 0;
                 }
             }
@@ -37,7 +43,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
         $scope.planning = !$scope.planning;
 
         if ($scope.planning) {
-            $scope.stories.unshift({ruler: true, points: 0});
+            $scope.stories.unshift({ruler: true, points: 0, iteration: 1});
         } else {
             //todo remove all rulers
         }

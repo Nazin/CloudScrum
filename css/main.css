@@ -17,6 +17,7 @@
 
 .backlog-stories.active {
     margin-right: 50px;
+    margin-left: 100px;
 }
 
 .backlog-stories .sortable-placeholder {
@@ -42,13 +43,19 @@
     position: absolute;
     border: 1px solid #f39c12;
     right: -50px;
-    left: 0;
+    left: -100px;
     cursor: n-resize;
 }
 
 .backlog-story.ruler > .ruler > .points {
     position: absolute;
     right: 0;
+    bottom: 5px;
+}
+
+.backlog-story.ruler > .ruler > .iteration {
+    position: absolute;
+    left: 0;
     bottom: 5px;
 }
 
