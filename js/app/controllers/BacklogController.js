@@ -1,8 +1,10 @@
 'use strict';
 
-cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope) {
+cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope, Google) {
 
-    $rootScope.loading = false;//todo hide after loading stories from google api
+    Google.login().then(function() {
+        $rootScope.loading = false;//todo hide after loading stories from google api
+    });
 
     $scope.planning = false;
     $scope.stories = [

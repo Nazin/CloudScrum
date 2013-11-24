@@ -1,3 +1,23 @@
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak],
+.ng-cloak, .x-ng-cloak,
+.ng-hide {
+    display: none !important;
+}
+
+ng\:form {
+    display: block;
+}
+
+.ng-animate-start {
+    border-spacing: 1px 1px;
+    -ms-zoom: 1.0001;
+}
+
+.ng-animate-active {
+    border-spacing: 0 0;
+    -ms-zoom: 1;
+}
+
 #global-loading {
     position: fixed;
     top: 0;
@@ -5,7 +25,7 @@
     left: 0;
     right: 0;
     background: rgba(255, 255, 255, 0.8);
-    z-index: 999;
+    z-index: 99999;
     text-align: center;
 }
 

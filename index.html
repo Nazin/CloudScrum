@@ -18,20 +18,19 @@
             <a class="navbar-brand" href="#">CloudScrum</a>
         </div>
         <div class="navbar-collapse collapse navbar-responsive-collapse">
-            <ul class="nav navbar-nav">
-                <li ng-class="{ active: page == 'BacklogController' }"><a href="#/backlog">Backlog</a></li>
-                <li ng-class="{ active: page == 'StoryBoardController' }"><a href="#/story-board">Story board</a></li>
+            <ul class="nav navbar-nav ng-hide" ng-show="authorized">
+                <li ng-class="{ active: page === 'BacklogController' }"><a href="#/backlog">Backlog</a></li>
+                <li ng-class="{ active: page === 'StoryBoardController' }"><a href="#/story-board">Story board</a></li>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right ng-hide" ng-show="authorized">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">User <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="#">Settings</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Companies</li>
-                        <li><a href="#">Company 1</a></li>
-                        <li><a href="#">Company 2</a></li>
-                        <li><a href="#">+ New</a></li>
+                        <li ng-repeat="company in companies"><a href="" ng-click="loadCompany(company)">{{company.name}}</a></li>
+                        <li><a href="#" data-toggle="modal" data-target="#new-company-modal">+ New</a></li>
                     </ul>
                 </li>
             </ul>
@@ -40,7 +39,7 @@
 
     <div class="container">
 
-        <ul class="breadcrumb">
+        <ul class="breadcrumb ng-hide" ng-show="authorized">
             <li><a href="#">Company</a></li>
             <li><a href="#">Project</a></li>
             <li class="active">Breadcrumb TODO</li>
@@ -51,6 +50,31 @@
         </div>
 
         <div ng-view></div>
+    </div>
+
+    <div class="modal fade" id="new-company-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-hide="companies.length===0">&times;</button>
+                    <h4 class="modal-title">New company</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" class="form-horizontal" name="newCompanyForm" ng-submit="newCompanyForm.$valid && createCompany()" novalidate>
+                        <div class="form-group">
+                            <label for="companyName" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="companyName" ng-model="companyName" ng-pattern="/^[a-zA-Z0-9_\-. ]+$/" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-hide="companies.length===0">Close</button>
+                    <button type="button" class="btn btn-primary" ng-disabled="newCompanyForm.$invalid" ng-click="createCompany()">Save</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="global-loading" ng-show="loading">
@@ -64,9 +88,13 @@
     <script src="js/libs/angular/angular-route.min.js"></script>
     <script src="js/libs/angular/sortable.js"></script>
     <script src="js/app/app.js"></script>
+    <script src="js/app/controllers/AuthController.js"></script>
+    <script src="js/app/controllers/ProjectsController.js"></script>
     <script src="js/app/controllers/DashboardController.js"></script>
     <script src="js/app/controllers/BacklogController.js"></script>
     <script src="js/app/controllers/StoryBoardController.js"></script>
+    <script src="js/services/ngStorage.js"></script>
+    <script src="js/services/google.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=googleLoaded"></script>
 </body>
 </html>
