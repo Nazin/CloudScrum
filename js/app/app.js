@@ -99,6 +99,10 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
     $rootScope.setCompany = function(id, name) {
         $localStorage.cloudScrumCompanyFileId = id;
         $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName = name;
+        delete $localStorage.cloudScrumProjectFileId;
+        delete $localStorage.cloudScrumBacklogFileId;
+        delete $localStorage.cloudScrumProjectName;
+        $rootScope.selectedProjectName = undefined;
     };
 
     $rootScope.getCompanyId = function() {
@@ -113,6 +117,14 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
 
     $rootScope.getProjectId = function() {
         return $localStorage.cloudScrumProjectFileId;
+    };
+
+    $rootScope.getProjectName = function() {
+        return $localStorage.cloudScrumProjectName;
+    };
+
+    $rootScope.getBacklogId = function() {
+        return $localStorage.cloudScrumBacklogFileId;
     };
 });
 

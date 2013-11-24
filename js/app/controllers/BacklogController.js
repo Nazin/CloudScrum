@@ -1,22 +1,32 @@
 'use strict';
-
-cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope, Google) {
+//TODO on exit -> if unsaved, alert!
+cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope, $location, $window, Google) {
 
     Google.login().then(function() {
-        $rootScope.loading = false;//todo hide after loading stories from google api
+        var backlogId = $rootScope.getBacklogId();
+        if (typeof backlogId === 'undefined') {
+            $location.path('/projects');
+        } else {
+            Google.getBacklogStories($rootScope.getBacklogId()).then(function(data) {
+                $scope.stories = data.stories;
+                $scope.nextStoryId = data.maxId+1;
+            }, function(error) {
+                alert('handle error: ' + error); //todo
+            }).finally(function() {
+                $rootScope.loading = false;
+            });
+        }
     });
 
     $scope.planning = false;
-    $scope.stories = [
-        {title: 'Story 1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', estimate: 2},
-        {title: 'Story 2', description: 'Phasellus bibendum gravida diam, sed molestie eros imperdiet eu.', estimate: 5},
-        {title: 'Story 3', description: 'Morbi erat purus, interdum eu congue at, pellentesque tempor neque.', estimate: 2},
-        {title: 'Story 4', description: 'Ut ultrices sem vel justo egestas tempus.', estimate: 1},
-        {title: 'Story 5', description: 'Vestibulum ipsum sapien, vulputate a cursus a, blandit ut libero.', estimate: 8}
-    ];
+    $scope.unsaved = false;
+    $scope.saving = false;
+    $scope.stories = [];
+    $scope.nextStoryId = 1;
+    $scope.newStoryModal = $('#new-story-modal');
 
     $scope.sortableOptions = {
-        stop: function(e, ui) {
+        update: function(e, ui) {
 
             var sp = 0, it = 1;
 
@@ -35,9 +45,50 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
                     sp = 0;
                 }
             }
+
+            if (!$scope.planning) {
+                $scope.unsaved = true;
+                //TODO save timeout (10s?)
+            }
         },
         axis: 'y',
         cancel: '.disabled'
+    };
+
+    $scope.createStory = function() {
+        $scope.unsaved = true;
+        $scope.stories.push({
+            id: 'S-' + ($scope.nextStoryId++),
+            title: $scope.storyTitle,
+            epic: typeof $scope.storyEpic === 'undefined' ? '' : $scope.storyEpic,
+            estimate: $scope.storyEstimate,
+            details: typeof $scope.storyDetails === 'undefined' ? '' : $scope.storyDetails
+        });
+        $scope.storyTitle = '';
+        $scope.storyEpic = '';
+        $scope.storyEstimate = '';
+        $scope.storyDetails = '';
+        $scope.newStoryModal.modal('hide');
+        //TODO save timeout (10s?)
+    };
+
+    $scope.saveStories = function() {
+
+        $rootScope.loading = true;
+
+        if (!$scope.saving) {
+
+            $scope.saving = true;
+
+            Google.saveBacklogStories($scope.stories, $rootScope.getBacklogId(), $rootScope.getProjectName()).then(function() {
+                $scope.unsaved = false;
+            }, function(error) {
+                alert('handle error: ' + error); //todo
+            }).finally(function() {
+                $rootScope.loading = false;
+                $scope.saving = false;
+            });
+        }
     };
 
     $scope.planRelease = function() {
@@ -49,17 +100,5 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
         } else {
             //todo remove all rulers
         }
-    };
-
-    //TODO move to some other place
-    Array.prototype.move = function(oldIndex, newIndex) {
-        if (newIndex >= this.length) {
-            var k = newIndex - this.length;
-            while ((k--) + 1) {
-                this.push(undefined);
-            }
-        }
-        this.splice(newIndex, 0, this.splice(oldIndex, 1)[0]);
-        return this;
     };
 });

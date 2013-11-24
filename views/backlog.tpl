@@ -1,5 +1,7 @@
-<p class="clearfix">
-    <button type="button" class="btn btn-info pull-right" ng-click="planRelease()">Plan release</button>
+<p class="clearfix buttons-nav">
+    <button type="button" class="btn btn-info pull-right" ng-click="saveStories()" ng-show="unsaved">Save</button>
+    <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#new-story-modal">Add new</button>
+    <button type="button" class="btn btn-info pull-right" ng-click="planRelease()" ng-show="stories.length !== 0">Plan release</button>
 </p>
 
 <div class="backlog-stories" ng-class="{ active: planning }">
@@ -19,8 +21,51 @@
             </div>
             <div id="story_{{$index}}" class="panel-collapse collapse" ng-if="!story.ruler">
                 <div class="panel-body">
-                    Formularz do edycji? {{story.description}}
+                    Formularz do edycji? {{story.details}}
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="new-story-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">New story</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-horizontal" name="newStoryForm" ng-submit="newStoryForm.$valid && createStory()" novalidate>
+                    <div class="form-group">
+                        <label for="storyTitle" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="storyTitle" ng-model="storyTitle" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="storyEstimate" class="col-sm-2 control-label">Estimate</label>
+                        <div class="col-xs-3">
+                            <input type="number" min="1" class="form-control" id="storyEstimate" ng-model="storyEstimate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="storyEpic" class="col-sm-2 control-label">Epic</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="storyEpic" ng-model="storyEpic">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="storyDetails" class="col-sm-2 control-label">Details</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" id="storyDetails" ng-model="storyDetails"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-disabled="newStoryForm.$invalid" ng-click="createStory()">Add</button>
             </div>
         </div>
     </div>

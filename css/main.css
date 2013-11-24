@@ -82,3 +82,11 @@ ng\:form {
 .backlog-story .badge {
     float: right;
 }
+
+.buttons-nav > button {
+    margin-left: 10px;
+}
+
+textarea {
+    resize: vertical;
+}

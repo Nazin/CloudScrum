@@ -7584,7 +7584,8 @@ input[type="color"]:focus,
 
 .has-error .form-control,
 .has-error .form-control:focus,
-input.ng-invalid {
+input.ng-invalid,
+textarea.ng-invalid {
     border: 2px solid #e74c3c;
 }
 
@@ -7595,7 +7596,8 @@ input.ng-invalid {
 
 .has-success .form-control,
 .has-success .form-control:focus,
-input.ng-valid {
+input.ng-valid,
+textarea.ng-valid {
     border: 2px solid #18bc9c;
 }
 
