@@ -85,12 +85,34 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
     };
 
     $rootScope.loadCompany = function(company) {
-        $localStorage.cloudScrumCompanyFileId = company.id;
+        $rootScope.setCompany(company.id, company.name);
         if ($location.path() === '/projects') {
             $route.reload();
         } else {
             $location.path('/projects')
         }
+    };
+
+    $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName;
+    $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName;
+
+    $rootScope.setCompany = function(id, name) {
+        $localStorage.cloudScrumCompanyFileId = id;
+        $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName = name;
+    };
+
+    $rootScope.getCompanyId = function() {
+        return $localStorage.cloudScrumCompanyFileId;
+    };
+
+    $rootScope.setProject = function(id, name, backlog) {
+        $localStorage.cloudScrumProjectFileId = id;
+        $localStorage.cloudScrumBacklogFileId = backlog;
+        $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName = name;
+    };
+
+    $rootScope.getProjectId = function() {
+        return $localStorage.cloudScrumProjectFileId;
     };
 });
 

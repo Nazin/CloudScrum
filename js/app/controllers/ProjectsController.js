@@ -1,13 +1,13 @@
 'use strict';
 
-cloudScrum.controller('ProjectsController', function ProjectsController($scope, $rootScope, $location, $localStorage, Google) {
+cloudScrum.controller('ProjectsController', function ProjectsController($scope, $rootScope, $location, Google) {
 
     $scope.newProjectModal = $('#new-project-modal');
-    $scope.projectFileId = $localStorage.cloudScrumProjectFileId;
+    $scope.projectFileId = $rootScope.getProjectId();
     $scope.projects = [];
 
     Google.login().then(function() {
-        Google.findProjectsFiles($localStorage.cloudScrumCompanyFileId).then(function(files) {
+        Google.findProjectsFiles($rootScope.getCompanyId()).then(function(files) {
             if (files.length === 0) {
                 $scope.newProjectModal.modal('show');
             } else {
@@ -27,14 +27,13 @@ cloudScrum.controller('ProjectsController', function ProjectsController($scope, 
         $rootScope.loading = true;
         $scope.newProjectModal.modal('hide');
 
-        Google.createFolder($scope.projectName, $localStorage.cloudScrumCompanyFileId).then(function(file) {
+        Google.createFolder($scope.projectName, $rootScope.getCompanyId()).then(function(file) {
 
-            $localStorage.cloudScrumProjectFileId = file.id;
             $scope.projects.push({id: file.id, name: $scope.projectName});
-            $scope.projectName = '';
 
-            Google.createSpreadsheet('backlog', file.id).then(function(file) {
-                $localStorage.cloudScrumBacklogFileId = file.id;
+            Google.createSpreadsheet('backlog', file.id).then(function(file2) {
+                $rootScope.setProject(file.id, $scope.projectName, file2.id);
+                $scope.projectName = '';
                 $location.path('/backlog');
             }, function(error) {
                 alert('handle error: ' + error); //todo
@@ -52,8 +51,7 @@ cloudScrum.controller('ProjectsController', function ProjectsController($scope, 
         $rootScope.loading = true;
 
         Google.findBacklog(project.id).then(function(files) {
-            $localStorage.cloudScrumProjectFileId = project.id;
-            $localStorage.cloudScrumBacklogFileId = files[0].id;
+            $rootScope.setProject(project.id, project.name, files[0].id);
             $location.path('/backlog');
         }, function(error) {
             alert('handle error: ' + error); //todo

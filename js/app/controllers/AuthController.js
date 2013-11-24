@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('AuthController', function AuthController($scope, $rootScope, $location, $localStorage, Google) {
+cloudScrum.controller('AuthController', function AuthController($scope, $rootScope, $location, Google) {
 
     Google.login().finally(function() {
         $rootScope.loading = false;
@@ -24,7 +24,7 @@ cloudScrum.controller('AuthController', function AuthController($scope, $rootSco
                     }
 
                     if (files.length === 1) {
-                        $localStorage.cloudScrumCompanyFileId = files[0].id;
+                        $rootScope.setCompany(files[0].id, files[0].title.replace('CloudScrum-', ''));
                         $location.path('/projects');
                     } else {
                         alert('todo! more than 1 company detected!'); //TODO
