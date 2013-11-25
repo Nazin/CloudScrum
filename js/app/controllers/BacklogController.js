@@ -21,12 +21,13 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
     $scope.planning = false;
     $scope.unsaved = false;
     $scope.saving = false;
+    $scope.sortable = false;
     $scope.stories = [];
     $scope.nextStoryId = 1;
     $scope.newStoryModal = $('#new-story-modal');
 
     $scope.sortableOptions = {
-        update: function(e, ui) {
+        stop: function() {
 
             var sp = 0, it = 1;
 
@@ -38,14 +39,11 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
                     $scope.stories[i].points = sp;
                     $scope.stories[i].iteration = it++;
 
-                    var tmp = $('.backlog-story:eq(' + i + ')');
-                    tmp.find('.points').text(sp);
-                    tmp.find('.iteration').text('Iteration ' + $scope.stories[i].iteration);
-
                     sp = 0;
                 }
             }
-
+        },
+        update: function(e, ui) {
             if (!$scope.planning) {
                 $scope.unsaved = true;
                 //TODO save timeout (10s?)
@@ -100,5 +98,9 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
         } else {
             //todo remove all rulers
         }
+    };
+
+    $scope.edit = function() {
+        $scope.unsaved = true;
     };
 });

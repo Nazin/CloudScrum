@@ -1,31 +1,57 @@
 <p class="clearfix buttons-nav">
-    <button type="button" class="btn btn-info pull-right" ng-click="saveStories()" ng-show="unsaved">Save</button>
+    <button type="button" class="btn btn-info pull-right" ng-click="saveStories()" ng-show="unsaved" ng-disabled="editStoryForm.$invalid">Save</button>
+    <button type="button" class="btn pull-right" ng-click="sortable =! sortable" ng-show="stories.length !== 0" ng-class="{ 'btn-info': !sortable, 'btn-success': sortable }">Sort</button>
     <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#new-story-modal">Add new</button>
-    <button type="button" class="btn btn-info pull-right" ng-click="planRelease()" ng-show="stories.length !== 0">Plan release</button>
+    <button type="button" class="btn pull-right" ng-click="planRelease()" ng-show="stories.length !== 0" ng-class="{ 'btn-info': !planning, 'btn-success': planning }">Plan release</button>
 </p>
 
 <div class="backlog-stories" ng-class="{ active: planning }">
-    <div class="panel-group" id="accordion" ui-sortable="sortableOptions" ng-model="stories">
-        <div class="panel panel-default backlog-story" ng-repeat="story in stories" ng-class="{ disabled: planning&&!story.ruler, ruler: story.ruler }">
-            <div class="ruler" ng-if="story.ruler">
-                <div class="iteration badge badge-success">Iteration {{story.iteration}}</div>
-                <div class="points badge badge-success">{{story.points}}</div>
-            </div>
-            <div class="panel-heading" ng-if="!story.ruler">
-                <span class="badge">{{story.estimate}}</span>
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#story_{{$index}}">
-                        {{story.title}}
-                    </a>
-                </h4>
-            </div>
-            <div id="story_{{$index}}" class="panel-collapse collapse" ng-if="!story.ruler">
-                <div class="panel-body">
-                    Formularz do edycji? {{story.details}}
+    <form role="form" class="form-horizontal" novalidate name="editStoryForm">
+        <div class="panel-group" id="accordion" ui-sortable="sortableOptions" ng-model="stories">
+            <div class="panel panel-default backlog-story" ng-repeat="story in stories" ng-class="{ disabled: (planning&&!story.ruler)||(!sortable&&!story.ruler), ruler: story.ruler }">
+                <div class="ruler" ng-if="story.ruler">
+                    <div class="iteration badge badge-success">Iteration {{story.iteration}}</div>
+                    <div class="points badge badge-success">{{story.points}}</div>
+                </div>
+                <div class="panel-heading" ng-if="!story.ruler">
+                    <span class="badge">{{story.estimate}}</span>
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#story_{{$index}}">
+                            {{story.title}}
+                        </a>
+                    </h4>
+                </div>
+                <div id="story_{{$index}}" class="panel-collapse collapse" ng-if="!story.ruler">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" ng-model="story.title" ng-change="edit()" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Estimate</label>
+                            <div class="col-xs-3">
+                                <input type="number" min="1" class="form-control" ng-model="story.estimate" ng-change="edit()" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Epic</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" ng-model="story.epic" ng-change="edit()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Details</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" rows="3" ng-model="story.details" ng-change="edit()"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 <div class="modal fade" id="new-story-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
