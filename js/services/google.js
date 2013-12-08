@@ -111,7 +111,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             $rootScope.$apply();
         }, timeoutTime);
 
-        $.getScript('https://spreadsheets.google.com/feeds/cells/' + id + '/od6/private/full?access_token=' + gapi.auth.getToken().access_token + '&alt=json-in-script&callback=receiveBacklogCells', function() {
+        $.getScript('https://spreadsheets.google.com/feeds/cells/' + id + '/1/private/full?access_token=' + gapi.auth.getToken().access_token + '&alt=json-in-script&callback=receiveBacklogCells', function() {
             $timeout.cancel(timeoutPromise);
         });
 
@@ -119,47 +119,15 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     };
 
     self.saveBacklogStories = function(stories, id, name) {
+        return saveSpreadsheet(id, 'backlog', function(builder) {
+            return prepareBacklog(builder, stories, name);
+        }, false);
+    };
 
-        deferred2 = $q.defer();
-
-        var timeoutPromise = $timeout(function() {
-            deferred.reject(self.ERROR_TIMEOUT);
-            $rootScope.$apply();
-        }, timeoutTime);
-
-        require(['libs/excel-builder.js/excel-builder'], function(builder) {//TODO refactor entire app to use require
-            self.onDrive(function() {
-
-                var boundary = '-------314159265358979323846', delimiter = "\r\n--" + boundary + "\r\n", closeDelimiter = "\r\n--" + boundary + "--";
-                var metadata = {
-                    'title': 'backlog',
-                    'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                };
-
-                var requestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + prepareBacklog(builder, stories, name) + closeDelimiter;
-
-                var request = gapi.client.request({
-                    'path': '/upload/drive/v2/files/' + id,
-                    'method': 'PUT',
-                    'params': {
-                        'uploadType': 'multipart',
-                        'convert': true
-                    },
-                    'headers': {
-                        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-                    },
-                    'body': requestBody
-                });
-
-                request.execute(function(file) {
-                    deferred2.resolve(file);
-                    $timeout.cancel(timeoutPromise);
-                    $rootScope.$apply();
-                });
-            });
-        });
-
-        return deferred2.promise;
+    self.saveRelease = function(parentId, iterations, name, newFile) {
+        return saveSpreadsheet(parentId, 'release-' + name, function(builder) {
+            return prepareRelease(builder, iterations);
+        }, newFile);
     };
 
     /**
@@ -231,6 +199,56 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return deferred.promise;
     };
 
+    var saveSpreadsheet = function(id, fileName, buildData, newFile) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        require(['libs/excel-builder.js/excel-builder'], function(builder) {
+            self.onDrive(function() {
+
+                var boundary = '-------314159265358979323846', delimiter = "\r\n--" + boundary + "\r\n", closeDelimiter = "\r\n--" + boundary + "--";
+                var metadata = {
+                    'title': fileName,
+                    'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                };
+
+                if (newFile) {
+                    metadata['parents'] = [
+                        {id: id}
+                    ];
+                }
+
+                var requestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + buildData(builder) + closeDelimiter;
+
+                var request = gapi.client.request({
+                    'path': newFile ? '/upload/drive/v2/files' : '/upload/drive/v2/files/' + id,
+                    'method': newFile ? 'POST' : 'PUT',
+                    'params': {
+                        'uploadType': 'multipart',
+                        'convert': true
+                    },
+                    'headers': {
+                        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                    },
+                    'body': requestBody
+                });
+
+                request.execute(function(file) {
+                    deferred2.resolve(file);
+                    $timeout.cancel(timeoutPromise);
+                    $rootScope.$apply();
+                });
+            });
+        });
+
+        return deferred2.promise;
+    };
+
     var defaultCellStyles = {
         font: {
             color: 'FF404040',
@@ -247,10 +265,49 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             left: {color: 'FFFFFFFF', style: 'thin'},
             right: {color: 'FFFFFFFF', style: 'thin'}
         }
+    }, defaultRightCellStyles = {
+        font: {
+            color: 'FF404040',
+            size: 10
+        },
+        alignment: {
+            horizontal: 'right'
+        },
+        fill: {
+            type: 'pattern',
+            patternType: 'solid',
+            fgColor: 'FFFFFFFF'
+        },
+        border: {
+            bottom: {color: 'FFFFFFFF', style: 'thin'},
+            top: {color: 'FFFFFFFF', style: 'thin'},
+            left: {color: 'FFFFFFFF', style: 'thin'},
+            right: {color: 'FFFFFFFF', style: 'thin'}
+        }
     }, oddCellStyles = {
         font: {
             color: 'FF404040',
             size: 10
+        },
+        fill: {
+            type: 'pattern',
+            patternType: 'solid',
+            fgColor: 'FFF0F9F9'
+        },
+        border: {
+            bottom: {color: 'FFF0F9F9', style: 'thin'},
+            top: {color: 'FFF0F9F9', style: 'thin'},
+            left: {color: 'FFF0F9F9', style: 'thin'},
+            right: {color: 'FFF0F9F9', style: 'thin'}
+        }
+    }, oddBoldCellStyles = {
+        font: {
+            bold: true,
+            color: 'FF404040',
+            size: 10
+        },
+        alignment: {
+            horizontal: 'left'
         },
         fill: {
             type: 'pattern',
@@ -350,13 +407,77 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return builder.createFile(workbook);
     };
 
+    var iterationColumns = ['id', 'epic', 'title', 'owner', 'status', 'estimate', 'effort', 'details'];
+
+    var prepareRelease = function(builder, iterations) {
+
+        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, i, j, k;
+        var stylesheet = workbook.getStyleSheet(),
+            titleStyle = stylesheet.createFormat(titleStyles),
+            headerStyle = stylesheet.createFormat(headerCellStyles),
+            oddCellStyle = stylesheet.createFormat(oddCellStyles),
+            oddBoldCellStyle = stylesheet.createFormat(oddBoldCellStyles),
+            defaultCellStyle = stylesheet.createFormat(defaultCellStyles),
+            defaultRightCellStyle = stylesheet.createFormat(defaultRightCellStyles);
+
+        for (i=0; i < l; i++) {
+
+            var iteration = 'Iteration ' + (i+1), worksheet = workbook.createWorksheet({name: iteration}), s = iterations[i].stories.length, maxRows = 20 + s;
+            //TODO columns width
+            var data = prepareDefaultDataSet(defaultCellStyle, maxRows);
+
+            data[1][1].value = iteration;
+            data[1][1].metadata.style = titleStyle.id;
+
+            data[4][1].value = 'Start date';
+            data[4][1].metadata.style = defaultRightCellStyle.id;
+            data[4][4].value = 'End date';
+            data[4][4].metadata.style = defaultRightCellStyle.id;
+
+            data[4][2].value = iterations[i].startDate;
+            data[4][2].metadata.style = oddBoldCellStyle.id;
+            data[4][5].value = iterations[i].endDate;
+            data[4][5].metadata.style = oddBoldCellStyle.id;
+
+            data[6][1].value = 'Accepted';
+            data[6][1].metadata.style = defaultRightCellStyle.id;
+            data[6][4].value = 'Estimate';
+            data[6][4].metadata.style = defaultRightCellStyle.id;
+
+            data[6][2].value = 'SUMIF(F:F;"Accepted";G:G)';
+            data[6][2].metadata.style = oddBoldCellStyle.id;
+            data[6][2].metadata.type = 'formula';
+            data[6][5].value = 'SUMIF(B:B;"<>";G:G)';
+            data[6][5].metadata.style = oddBoldCellStyle.id;
+            data[6][5].metadata.type = 'formula';
+
+            for (j=0; j<n; j++) {
+                data[9][j+1].value = iterationColumns[j].capitalize();
+                data[9][j+1].metadata.style = headerStyle.id;
+            }
+
+            for (k=0; k<s; k++) {
+                for (j=0; j<n; j++) {
+                    data[10+k][j+1].value = typeof iterations[i].stories[k][iterationColumns[j]] === 'undefined' ? '' : iterations[i].stories[k][iterationColumns[j]];
+                    if (k%2 === 0) {
+                        data[10+k][j+1].metadata.style = oddCellStyle.id;
+                    }
+                }
+            }
+
+            worksheet.setData(data);
+            worksheet.mergeCells('B2', 'G2');
+
+            workbook.addWorksheet(worksheet);
+        }
+
+        return builder.createFile(workbook);
+    };
+
     var prepareDefaultDataSet = function(style, maxRows, maxCols) {
 
         var data = [], i, j;
-
-        if (typeof maxCols === 'undefined') {
-            maxCols = 20;
-        }
+        maxCols = maxCols || 20;
 
         if (maxRows < 20) {
             maxRows = 20;
