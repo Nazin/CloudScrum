@@ -7,7 +7,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
         if (typeof backlogId === 'undefined') {
             $location.path('/projects');
         } else {
-            Google.getBacklogStories($rootScope.getBacklogId()).then(function(data) {
+            Google.getBacklogStories(backlogId).then(function(data) {
                 $scope.stories = data.stories;
                 $scope.nextStoryId = data.maxId+1;
             }, function(error) {
@@ -106,7 +106,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
     };
 
     $scope.cancelPlanning = function() {
-        if (confirm("Are you sure?")) {//TODO maybe some nicer confirm (not js default)
+        if (confirm('Are you sure?')) {//TODO maybe some nicer confirm (not js default)
             $scope.planning = false;
             $scope.iterations = 0;
             for (var i = $scope.stories.length-1; i >= 0 ; i--) {
@@ -158,10 +158,10 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
             }
         }
 
-        Google.saveRelease($rootScope.getProjectId(), iterations, $scope.releaseName, true).then(function() {
-            //TODO save release file id in rootScope
+        Google.saveRelease($rootScope.getProjectId(), iterations, $scope.releaseName, true).then(function(file) {
+            $rootScope.setRelease(file.id, $scope.releaseName);
             //TODO remove stories from backlog
-            //TODO redirect to storyboard?
+            $location.path('/story-board');
         }, function(error) {
             alert('handle error: ' + error); //todo handle error
             $rootScope.loading = false;

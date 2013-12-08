@@ -95,13 +95,14 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
 
     $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName;
     $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName;
-
+    //TODO move below to some service maybe - with better knowledge about company - project - release connection
     $rootScope.setCompany = function(id, name) {
         $localStorage.cloudScrumCompanyFileId = id;
         $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName = name;
         delete $localStorage.cloudScrumProjectFileId;
         delete $localStorage.cloudScrumBacklogFileId;
         delete $localStorage.cloudScrumProjectName;
+        delete $localStorage.cloudScrumReleaseFileId;
         $rootScope.selectedProjectName = undefined;
     };
 
@@ -115,6 +116,11 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
         $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName = name;
     };
 
+    $rootScope.setRelease = function(id, name) {
+        $localStorage.cloudScrumReleaseFileId = id;
+        $localStorage.cloudScrumReleaseName = name;
+    };
+
     $rootScope.getProjectId = function() {
         return $localStorage.cloudScrumProjectFileId;
     };
@@ -125,6 +131,10 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
 
     $rootScope.getBacklogId = function() {
         return $localStorage.cloudScrumBacklogFileId;
+    };
+
+    $rootScope.getReleaseId = function() {
+        return $localStorage.cloudScrumReleaseFileId;
     };
 });
 

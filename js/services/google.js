@@ -13,6 +13,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         self = this;
 
     self.ERROR_TIMEOUT = -1;
+    self.HTTP_ERROR = -2;
 
     self.isAuthorized = function() {
         return isAuthorized;
@@ -107,12 +108,59 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         deferred2 = $q.defer();
 
         var timeoutPromise = $timeout(function() {
-            deferred.reject(self.ERROR_TIMEOUT);
+            deferred2.reject(self.ERROR_TIMEOUT);
             $rootScope.$apply();
         }, timeoutTime);
 
         $.getScript('https://spreadsheets.google.com/feeds/cells/' + id + '/1/private/full?access_token=' + gapi.auth.getToken().access_token + '&alt=json-in-script&callback=receiveBacklogCells', function() {
             $timeout.cancel(timeoutPromise);
+        });
+
+        return deferred2.promise;
+    };
+
+    self.getReleaseStories = function(id) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred2.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        require(['xlsx'], function(XLSX) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://docs.google.com/feeds/download/spreadsheets/Export?key=' + id + '&exportFormat=xlsx');
+            xhr.responseType = 'arraybuffer';
+            xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+            xhr.onload = function() {
+
+                if (xhr.status === 200) {
+
+                    var uInt8Array = new Uint8Array(this.response), i = uInt8Array.length, binaryString = new Array(i);
+
+                    while (i--) {
+                        binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                    }
+
+                    var data = binaryString.join(''), wb = XLSX.read(window.btoa(data), {type: 'base64'});
+                    //TODO process wb (http://oss.sheetjs.com/js-xlsx/)
+
+                    deferred2.resolve([]);
+                } else {
+                    deferred2.reject(self.HTTP_ERROR);
+                }
+
+                $timeout.cancel(timeoutPromise);
+            };
+
+            xhr.onerror = function() {
+                deferred2.reject(self.HTTP_ERROR);
+                $timeout.cancel(timeoutPromise);
+            };
+
+            xhr.send();
         });
 
         return deferred2.promise;
@@ -204,7 +252,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         deferred2 = $q.defer();
 
         var timeoutPromise = $timeout(function() {
-            deferred.reject(self.ERROR_TIMEOUT);
+            deferred2.reject(self.ERROR_TIMEOUT);
             $rootScope.$apply();
         }, timeoutTime);
 
@@ -423,7 +471,19 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         for (i=0; i < l; i++) {
 
             var iteration = 'Iteration ' + (i+1), worksheet = workbook.createWorksheet({name: iteration}), s = iterations[i].stories.length, maxRows = 20 + s;
-            //TODO columns width
+
+            worksheet.setColumns([
+                {width: 2},
+                {width: 15},
+                {width: 15},
+                {width: 40},
+                {width: 15},
+                {width: 15},
+                {width: 10},
+                {width: 10},
+                {width: 60}
+            ]);
+
             var data = prepareDefaultDataSet(defaultCellStyle, maxRows);
 
             data[1][1].value = iteration;
