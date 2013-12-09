@@ -144,10 +144,35 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                         binaryString[i] = String.fromCharCode(uInt8Array[i]);
                     }
 
-                    var data = binaryString.join(''), wb = XLSX.read(window.btoa(data), {type: 'base64'});
-                    //TODO process wb (http://oss.sheetjs.com/js-xlsx/)
+                    var data = binaryString.join(''), wb = XLSX.read(window.btoa(data), {type: 'base64'}), iterations = [], n = iterationColumns.length;
 
-                    deferred2.resolve([]);
+                    for (var sheetName in wb.Sheets) {
+
+                        var sheet = wb.Sheets[sheetName], stories = [], r = 10;
+
+                        while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
+
+                            var story = {};
+
+                            for (var j=0; j<n; j++) {
+                                var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                                if (typeof val !== 'undefined') {
+                                    story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                                }
+                            }
+
+                            stories.push(story);
+                            r++;
+                        }
+
+                        iterations.push({
+                            startDate: sheet[XLSX.utils.encode_cell({c: 2, r: 4})].v,
+                            endDate: sheet[XLSX.utils.encode_cell({c: 5, r: 4})].v,
+                            stories: stories
+                        });
+                    }
+
+                    deferred2.resolve(iterations);
                 } else {
                     deferred2.reject(self.HTTP_ERROR);
                 }
