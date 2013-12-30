@@ -76,10 +76,20 @@ angular.module('ui.sortable', [])
               // been created, either placeholder will be false if no
               // placeholder class was given or placeholder.element will be
               // undefined if a class was given (placeholder will be a string)
-              if (placeholder && placeholder.element) {
-                savedNodes = savedNodes.not(element.find(
-                  "." + placeholder.element()
-                    .attr('class').split(/\s+/).join('.')));
+              if (placeholder && placeholder.element && typeof placeholder.element === 'function') {
+                var phElement = placeholder.element();
+                // workaround for jquery ui 1.9.x,
+                // not returning jquery collection
+                if (!phElement.jquery) {
+                  phElement = $(phElement);
+                }
+
+                // exact match with the placeholder's class attribute to handle
+                // the case that multiple connected sortables exist and
+                // the placehoilder option equals the class of sortable items
+                var excludes = element.find('[class="' + phElement.attr('class') + '"]');
+                  
+                savedNodes = savedNodes.not(excludes);
               }
             };
 
@@ -108,7 +118,7 @@ angular.module('ui.sortable', [])
               // then we add the new item to this list otherwise wait until the
               // stop event where we will know if it was a sort or item was
               // moved here from another list
-              if(ui.item.sortable.received) {
+              if(ui.item.sortable.received && !ui.item.sortable.isCanceled()) {
                 scope.$apply(function () {
                   ngModel.$modelValue.splice(ui.item.sortable.dropindex, 0,
                                              ui.item.sortable.moved);
@@ -120,12 +130,21 @@ angular.module('ui.sortable', [])
               // If the received flag hasn't be set on the item, this is a
               // normal sort, if dropindex is set, the item was moved, so move
               // the items in the list.
-              if(!ui.item.sortable.received && ('dropindex' in ui.item.sortable) && !ui.item.sortable.isCanceled()) {
+              if(!ui.item.sortable.received &&
+                 ('dropindex' in ui.item.sortable) &&
+                 !ui.item.sortable.isCanceled()) {
+
                 scope.$apply(function () {
                   ngModel.$modelValue.splice(
                     ui.item.sortable.dropindex, 0,
                     ngModel.$modelValue.splice(ui.item.sortable.index, 1)[0]);
                 });
+              } else {
+                // if the item was not moved, then restore the elements
+                // so that the ngRepeat's comment are correct.
+                if(!('dropindex' in ui.item.sortable) || ui.item.sortable.isCanceled()) {
+                  savedNodes.detach().appendTo(element);
+                }
               }
             };
 
@@ -138,10 +157,12 @@ angular.module('ui.sortable', [])
             callbacks.remove = function(e, ui) {
               // Remove the item from this list's model and copy data into item,
               // so the next list can retrive it
-              scope.$apply(function () {
-                ui.item.sortable.moved = ngModel.$modelValue.splice(
-                  ui.item.sortable.index, 1)[0];
-              });
+              if (!ui.item.sortable.isCanceled()) {
+                scope.$apply(function () {
+                  ui.item.sortable.moved = ngModel.$modelValue.splice(
+                    ui.item.sortable.index, 1)[0];
+                });
+              }
             };
 
             scope.$watch(attrs.uiSortable, function(newVal, oldVal) {
