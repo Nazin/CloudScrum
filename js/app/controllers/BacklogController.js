@@ -52,7 +52,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
                 }
             }
         },
-        update: function(e, ui) {
+        update: function() {
             if (!$scope.planning) {
                 $scope.unsaved = true;
                 //TODO save timeout (10s?) + ng-disabled on save button (when saving)

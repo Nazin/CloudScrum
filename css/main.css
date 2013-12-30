@@ -70,3 +70,36 @@
 textarea {
     resize: vertical;
 }
+
+#story-board .status {
+    border-right: 1px solid #ecf0f1;
+}
+
+#story-board .status:nth-last-of-type(3) {
+    border-right: 0;
+}
+
+@media (max-width: 767px) {
+    #story-board .status:nth-of-type(2),
+    #story-board .status:nth-of-type(6) {
+        border-right: 0;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    #story-board .status:nth-of-type(4) {
+        border-right: 0;
+    }
+}
+
+#story-board .stories {
+    min-height: 200px;
+}
+
+#story-board .story {
+    margin-bottom: 5px;
+}
+
+#story-board .story > .badge {
+    float: right;
+}
