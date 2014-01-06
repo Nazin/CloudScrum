@@ -1,21 +1,25 @@
 'use strict';
 //TODO on exit -> if unsaved, alert!
-cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope, $location, $window, Google) {
+cloudScrum.controller('BacklogController', function BacklogController($scope, $rootScope, $location, $window, $timeout, Google, Flow) {
 
     Google.login().then(function() {
-        var backlogId = $rootScope.getBacklogId();
-        if (typeof backlogId === 'undefined') {
-            $location.path('/projects');
-        } else {
-            Google.getBacklogStories(backlogId).then(function(data) {
-                $scope.stories = data.stories;
-                $scope.nextStoryId = data.maxId+1;
-            }, function(error) {
-                alert('handle error: ' + error); //todo handle error
-            }).finally(function() {
-                $rootScope.loading = false;
-            });
-        }
+        Flow.on(function() {
+            var backlogId = Flow.getBacklogId();
+            if (typeof backlogId === 'undefined') {
+                $timeout(function() {
+                    $location.path('/projects');
+                }, 100);//instant redirect is causing some unexpected behaviour with sortable widget
+            } else {
+                Google.getBacklogStories(backlogId).then(function(data) {
+                    $scope.stories = data.stories;
+                    $scope.nextStoryId = data.maxId+1;
+                }, function(error) {
+                    alert('handle backlog error: ' + error); //todo handle error
+                }).finally(function() {
+                    $rootScope.loading = false;
+                });
+            }
+        });
     });
 
     $scope.planning = false;
@@ -87,7 +91,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
 
             $scope.saving = true;
 
-            Google.saveBacklogStories($scope.stories, $rootScope.getBacklogId(), $rootScope.getProjectName()).then(function() {
+            Google.saveBacklogStories($scope.stories, Flow.getBacklogId(), Flow.getProjectName()).then(function() {
                 $scope.unsaved = false;
             }, function(error) {
                 alert('handle error: ' + error); //todo handle error
@@ -158,10 +162,14 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
             }
         }
 
-        Google.saveRelease($rootScope.getProjectId(), iterations, $scope.releaseName, true).then(function(file) {
-            $rootScope.setRelease(file.id, $scope.releaseName);
-            //TODO remove stories from backlog
-            $location.path('/story-board');
+        Google.saveRelease(Flow.getProjectId(), iterations, $scope.releaseName, true).then(function(file) {
+            Flow.newRelease(file.id, $scope.releaseName, iterations).then(function() {
+                //TODO remove stories from backlog
+                $location.path('/story-board');
+            }, function() {
+                alert('handle error: ' + error); //todo handle error
+                $rootScope.loading = false;
+            });
         }, function(error) {
             alert('handle error: ' + error); //todo handle error
             $rootScope.loading = false;

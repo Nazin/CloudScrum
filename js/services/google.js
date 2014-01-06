@@ -14,6 +14,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     self.ERROR_TIMEOUT = -1;
     self.HTTP_ERROR = -2;
+    self.MISSING_FLOW_FILE = -3;
 
     self.isAuthorized = function() {
         return isAuthorized;
@@ -91,10 +92,6 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return findFiles('\'' + parent + '\' in parents and trashed = false and mimeType = \'application/vnd.google-apps.folder\'');
     };
 
-    self.findBacklog = function(parent) {
-        return findFiles('title = \'backlog\' and \'' + parent + '\' in parents and trashed = false and mimeType = \'application/vnd.google-apps.spreadsheet\'');
-    };
-
     self.createFolder = function(name, parent) {
         return createFile(name, parent, 'application/vnd.google-apps.folder');
     };
@@ -134,6 +131,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             xhr.open('GET', 'https://docs.google.com/feeds/download/spreadsheets/Export?key=' + id + '&exportFormat=xlsx');
             xhr.responseType = 'arraybuffer';
             xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+
             xhr.onload = function() {
 
                 if (xhr.status === 200) {
@@ -201,6 +199,58 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return saveSpreadsheet(parentId, 'release-' + name, function(builder) {
             return prepareRelease(builder, iterations);
         }, newFile);
+    };
+
+    self.updateFlowFile = function(flowFileId, parentId, data) {
+        return prepareFileSave(function(timeoutPromise) {
+            require(['JSZip'], function() {
+                saveFile(typeof flowFileId === 'undefined' ? parentId : flowFileId, 'flow', typeof flowFileId === 'undefined', 'application/json', false, JSZipBase64.encode(JSON.stringify(data)), deferred2, timeoutPromise);
+            });
+        });
+    };
+
+    self.getFlowFile = function(parentId) {
+
+        var deferred = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        findFiles('title = \'flow\' and \'' + parentId + '\' in parents and trashed = false and mimeType = \'application/json\'').then(function(files) {
+
+            if (files.length === 0) {
+                deferred.reject(self.MISSING_FLOW_FILE);
+            } else {
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', files[0].downloadUrl);
+                xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+
+                xhr.onload = function() {
+
+                    if (xhr.status === 200) {
+                        deferred.resolve({projects: JSON.parse(xhr.responseText), flowFileId: files[0].id});
+                    } else {
+                        deferred.reject(self.HTTP_ERROR);
+                    }
+
+                    $timeout.cancel(timeoutPromise);
+                };
+
+                xhr.onerror = function() {
+                    deferred.reject(self.HTTP_ERROR);
+                    $timeout.cancel(timeoutPromise);
+                };
+
+                xhr.send();
+            }
+        }, function(error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
     };
 
     /**

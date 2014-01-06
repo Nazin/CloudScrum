@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('StoryBoardController', function StoryBoardController($scope, $rootScope, $location, Google) {
+cloudScrum.controller('StoryBoardController', function StoryBoardController($scope, $rootScope, $location, $timeout, Google, Flow) {
 
     $scope.statusesInfo = [ //TODO grab from config
         'Not started', 'In progress', 'Completed', 'Testing', 'Accepted', 'Blocked'
@@ -15,9 +15,11 @@ cloudScrum.controller('StoryBoardController', function StoryBoardController($sco
     }
 
     Google.login().then(function() {
-        var releaseId = $rootScope.getReleaseId();
+        var releaseId = Flow.getReleaseId();
         if (typeof releaseId === 'undefined') {
-            $location.path('/backlog');
+            $timeout(function() {
+                $location.path('/backlog');
+            }, 100);//instant redirect is causing some unexpected behaviour with sortable widget
         } else {
             Google.getReleaseStories(releaseId).then(function(data) {
                 //TODO take current iteration, allow to change

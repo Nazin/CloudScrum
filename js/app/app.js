@@ -27,7 +27,7 @@ cloudScrum.config(function($routeProvider) {
     });
 });
 
-cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
+cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google, Flow) {
 
     $rootScope.loading = true;
     $rootScope.authorized = false;
@@ -40,8 +40,14 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
 
         Google.findCompaniesFiles().then(function(files) {
             if (files.length === 0) {
+                $rootScope.companyModalVisible = true;
                 $rootScope.newCompanyModal.modal('show');
+                var tmp = $('#new-project-modal');
+                if (tmp.length) {
+                    tmp.modal('hide');
+                }
             } else {
+                $rootScope.companyModalVisible = false;
                 for (var i=0; i<files.length; i++) {
                     $rootScope.companies.push({id: files[i].id, name: files[i].title.replace('CloudScrum-', '')});
                 }
@@ -71,12 +77,13 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
 
         $rootScope.loading = true;
         $rootScope.newCompanyModal.modal('hide');
+        $rootScope.companyModalVisible = false;
 
         Google.createFolder('CloudScrum-' + $rootScope.companyName).then(function(file) {
             var company = {id: file.id, name: $rootScope.companyName};
             $rootScope.companyName = '';
             $rootScope.companies.push(company);
-            $rootScope.loadCompany(company);
+            $rootScope.loadCompany(company, true);
         }, function(error) {
             alert('handle error: ' + error); //todo
         }).finally(function() {
@@ -84,57 +91,16 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google) {
         });
     };
 
-    $rootScope.loadCompany = function(company) {
-        $rootScope.setCompany(company.id, company.name);
+    $rootScope.loadCompany = function(company, newCompany) {
+
+        newCompany = newCompany || false;
+        Flow.setCompany(company.id, company.name, newCompany);
+
         if ($location.path() === '/projects') {
             $route.reload();
         } else {
             $location.path('/projects')
         }
-    };
-
-    $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName;
-    $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName;
-    //TODO move below to some service maybe - with better knowledge about company - project - release connection
-    $rootScope.setCompany = function(id, name) {
-        $localStorage.cloudScrumCompanyFileId = id;
-        $rootScope.selectedCompanyName = $localStorage.cloudScrumCompanyName = name;
-        delete $localStorage.cloudScrumProjectFileId;
-        delete $localStorage.cloudScrumBacklogFileId;
-        delete $localStorage.cloudScrumProjectName;
-        delete $localStorage.cloudScrumReleaseFileId;
-        $rootScope.selectedProjectName = undefined;
-    };
-
-    $rootScope.getCompanyId = function() {
-        return $localStorage.cloudScrumCompanyFileId;
-    };
-
-    $rootScope.setProject = function(id, name, backlog) {
-        $localStorage.cloudScrumProjectFileId = id;
-        $localStorage.cloudScrumBacklogFileId = backlog;
-        $rootScope.selectedProjectName = $localStorage.cloudScrumProjectName = name;
-    };
-
-    $rootScope.setRelease = function(id, name) {
-        $localStorage.cloudScrumReleaseFileId = id;
-        $localStorage.cloudScrumReleaseName = name;
-    };
-
-    $rootScope.getProjectId = function() {
-        return $localStorage.cloudScrumProjectFileId;
-    };
-
-    $rootScope.getProjectName = function() {
-        return $localStorage.cloudScrumProjectName;
-    };
-
-    $rootScope.getBacklogId = function() {
-        return $localStorage.cloudScrumBacklogFileId;
-    };
-
-    $rootScope.getReleaseId = function() {
-        return $localStorage.cloudScrumReleaseFileId;
     };
 });
 
