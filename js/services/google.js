@@ -273,6 +273,14 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     };
 
     var saveSpreadsheet = function(id, fileName, buildData, newFile) {
+        return prepareFileSave(function(timeoutPromise) {
+            require(['libs/excel-builder.js/excel-builder'], function(builder) {
+                saveFile(id, fileName, newFile, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true, buildData(builder), deferred2, timeoutPromise);
+            });
+        });
+    };
+
+    var prepareFileSave = function(callback) {
 
         deferred2 = $q.defer();
 
@@ -281,45 +289,48 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             $rootScope.$apply();
         }, timeoutTime);
 
-        require(['libs/excel-builder.js/excel-builder'], function(builder) {
-            self.onDrive(function() {
-
-                var boundary = '-------314159265358979323846', delimiter = "\r\n--" + boundary + "\r\n", closeDelimiter = "\r\n--" + boundary + "--";
-                var metadata = {
-                    'title': fileName,
-                    'mimeType': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                };
-
-                if (newFile) {
-                    metadata['parents'] = [
-                        {id: id}
-                    ];
-                }
-
-                var requestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + buildData(builder) + closeDelimiter;
-
-                var request = gapi.client.request({
-                    'path': newFile ? '/upload/drive/v2/files' : '/upload/drive/v2/files/' + id,
-                    'method': newFile ? 'POST' : 'PUT',
-                    'params': {
-                        'uploadType': 'multipart',
-                        'convert': true
-                    },
-                    'headers': {
-                        'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-                    },
-                    'body': requestBody
-                });
-
-                request.execute(function(file) {
-                    deferred2.resolve(file);
-                    $timeout.cancel(timeoutPromise);
-                    $rootScope.$apply();
-                });
-            });
-        });
+        callback(timeoutPromise);
 
         return deferred2.promise;
+    };
+
+    var saveFile = function(id, fileName, newFile, mimeType, convert, data, deferred, timeoutPromise) {
+
+        self.onDrive(function() {
+
+            var boundary = '-------314159265358979323846', delimiter = "\r\n--" + boundary + "\r\n", closeDelimiter = "\r\n--" + boundary + "--";
+            var metadata = {
+                'title': fileName,
+                'mimeType': mimeType
+            };
+
+            if (newFile) {
+                metadata['parents'] = [
+                    {id: id}
+                ];
+            }
+
+            var requestBody = delimiter + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: ' + mimeType + '\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' + data + closeDelimiter;
+
+            var request = gapi.client.request({
+                'path': newFile ? '/upload/drive/v2/files' : '/upload/drive/v2/files/' + id,
+                'method': newFile ? 'POST' : 'PUT',
+                'params': {
+                    'uploadType': 'multipart',
+                    'convert': convert
+                },
+                'headers': {
+                    'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                },
+                'body': requestBody
+            });
+
+            request.execute(function(file) {
+                deferred.resolve(file);
+                $timeout.cancel(timeoutPromise);
+                $rootScope.$apply();
+            });
+        });
     };
 
     var defaultCellStyles = {
