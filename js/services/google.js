@@ -187,14 +187,14 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     };
 
     self.saveBacklogStories = function(stories, id, name) {
-        return saveSpreadsheet(id, 'backlog', function(builder) {
-            return prepareBacklog(builder, stories, name);
+        return saveSpreadsheet(id, 'backlog', function(builder, Style) {
+            return prepareBacklog(builder, stories, name, Style);
         }, false);
     };
 
     self.saveRelease = function(parentId, iterations, name, newFile) {
-        return saveSpreadsheet(parentId, 'release-' + name, function(builder) {
-            return prepareRelease(builder, iterations);
+        return saveSpreadsheet(parentId, 'release-' + name, function(builder, Style) {
+            return prepareRelease(builder, iterations, Style);
         }, newFile);
     };
 
@@ -368,8 +368,8 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     var saveSpreadsheet = function(id, fileName, buildData, newFile) {
         return prepareFileSave(function(timeoutPromise) {
-            require(['libs/excel-builder.js/excel-builder'], function(builder) {
-                saveFile(id, fileName, newFile, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true, buildData(builder), deferred2, timeoutPromise);
+            require(['libs/excel-builder.js/excel-builder', 'styles'], function(builder, Style) {
+                saveFile(id, fileName, newFile, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', true, buildData(builder, Style), deferred2, timeoutPromise);
             });
         });
     };
@@ -427,162 +427,13 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         });
     };
 
-    var defaultCellStyles = {
-        font: {
-            color: 'FF404040',
-            size: 10
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFFFFFFF'
-        },
-        border: {
-            bottom: {color: 'FFFFFFFF', style: 'thin'},
-            top: {color: 'FFFFFFFF', style: 'thin'},
-            left: {color: 'FFFFFFFF', style: 'thin'},
-            right: {color: 'FFFFFFFF', style: 'thin'}
-        }
-    }, defaultRightCellStyles = {
-        font: {
-            color: 'FF404040',
-            size: 10
-        },
-        alignment: {
-            horizontal: 'right'
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFFFFFFF'
-        },
-        border: {
-            bottom: {color: 'FFFFFFFF', style: 'thin'},
-            top: {color: 'FFFFFFFF', style: 'thin'},
-            left: {color: 'FFFFFFFF', style: 'thin'},
-            right: {color: 'FFFFFFFF', style: 'thin'}
-        }
-    }, taskDefaultCellStyles = {
-        font: {
-            color: 'FF999999',
-            size: 9
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFFFFFFF'
-        },
-        border: {
-            bottom: {color: 'FFFFFFFF', style: 'thin'},
-            top: {color: 'FFFFFFFF', style: 'thin'},
-            left: {color: 'FFFFFFFF', style: 'thin'},
-            right: {color: 'FFFFFFFF', style: 'thin'}
-        }
-    }, taskOddCellStyles = {
-        font: {
-            color: 'FF999999',
-            size: 9
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFF0F9F9'
-        },
-        border: {
-            bottom: {color: 'FFF0F9F9', style: 'thin'},
-            top: {color: 'FFF0F9F9', style: 'thin'},
-            left: {color: 'FFF0F9F9', style: 'thin'},
-            right: {color: 'FFF0F9F9', style: 'thin'}
-        }
-    }, oddCellStyles = {
-        font: {
-            color: 'FF404040',
-            size: 10
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFF0F9F9'
-        },
-        border: {
-            bottom: {color: 'FFF0F9F9', style: 'thin'},
-            top: {color: 'FFF0F9F9', style: 'thin'},
-            left: {color: 'FFF0F9F9', style: 'thin'},
-            right: {color: 'FFF0F9F9', style: 'thin'}
-        }
-    }, oddBoldCellStyles = {
-        font: {
-            bold: true,
-            color: 'FF404040',
-            size: 10
-        },
-        alignment: {
-            horizontal: 'left'
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFF0F9F9'
-        },
-        border: {
-            bottom: {color: 'FFF0F9F9', style: 'thin'},
-            top: {color: 'FFF0F9F9', style: 'thin'},
-            left: {color: 'FFF0F9F9', style: 'thin'},
-            right: {color: 'FFF0F9F9', style: 'thin'}
-        }
-    }, headerCellStyles = {
-        font: {
-            bold: true,
-            color: 'FFFFFFFF',
-            size: 11
-        },
-        alignment: {
-            horizontal: 'center'
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FF404040'
-        },
-        border: {
-            bottom: {color: 'FF404040', style: 'thin'},
-            top: {color: 'FF404040', style: 'thin'},
-            left: {color: 'FF404040', style: 'thin'},
-            right: {color: 'FF404040', style: 'thin'}
-        }
-    }, titleStyles = {
-        font: {
-            color: 'FF00AFDB',
-            size: 24,
-            family: 'Georgia'
-        },
-        fill: {
-            type: 'pattern',
-            patternType: 'solid',
-            fgColor: 'FFFFFFFF'
-        },
-        border: {
-            bottom: {color: 'FFFFFFFF', style: 'thin'},
-            top: {color: 'FFFFFFFF', style: 'thin'},
-            left: {color: 'FFFFFFFF', style: 'thin'},
-            right: {color: 'FFFFFFFF', style: 'thin'}
-        }
-    };
-
     var backlogColumns = ['id', 'epic', 'title', 'estimate', 'details'],
         backlogTasksColumns = ['', '', 'title', 'estimate', 'details'];
 
-    var prepareBacklog = function(builder, stories, name) {
+    var prepareBacklog = function(builder, stories, name, Style) {
 
         var workbook = builder.createWorkbook(), worksheet = workbook.createWorksheet({name: 'Backlog'}), i, j, n = backlogColumns.length, l = stories.length, maxRows = 14 + l, t, tl, tasksAdded = 0,
-            nt = backlogTasksColumns.length;
-        var stylesheet = workbook.getStyleSheet(),
-            titleStyle = stylesheet.createFormat(titleStyles),
-            headerStyle = stylesheet.createFormat(headerCellStyles),
-            oddCellStyle = stylesheet.createFormat(oddCellStyles),
-            defaultCellStyle = stylesheet.createFormat(defaultCellStyles),
-            taskDefaultCellStyle = stylesheet.createFormat(taskDefaultCellStyles),
-            taskOddCellStyle = stylesheet.createFormat(taskOddCellStyles);
+            nt = backlogTasksColumns.length, styles = Style(workbook);
 
         worksheet.setColumns([
             {width: 2},
@@ -593,21 +444,25 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             {width: 60}
         ]);
 
-        var data = prepareDefaultDataSet(defaultCellStyle, maxRows);//TODO maxRows + tasks?
+        for (i=0; i<l; i++) {
+            maxRows += stories[i]['tasks'].length;
+        }
+
+        var data = prepareDefaultDataSet(styles.defaultCell, maxRows);
 
         data[1][1].value = name;
-        data[1][1].metadata.style = titleStyle.id;
+        data[1][1].metadata.style = styles.title.id;
 
         for (i=0; i<n; i++) {
             data[3][i+1].value = backlogColumns[i].capitalize();
-            data[3][i+1].metadata.style = headerStyle.id;
+            data[3][i+1].metadata.style = styles.header.id;
         }
 
         for (i=0; i<l; i++) {
             for (j=0; j<n; j++) {
                 data[4+i+tasksAdded][j+1].value = typeof stories[i][backlogColumns[j]] === 'undefined' ? '' : stories[i][backlogColumns[j]];
                 if ((i+tasksAdded)%2 === 0) {
-                    data[4+i+tasksAdded][j+1].metadata.style = oddCellStyle.id;
+                    data[4+i+tasksAdded][j+1].metadata.style = styles.oddCell.id;
                 }
             }
             for (t=0,tl=stories[i]['tasks'].length; t<tl; t++) {
@@ -618,9 +473,9 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                     }
                     data[4+i+tasksAdded][j+1].value = typeof stories[i]['tasks'][t][backlogTasksColumns[j]] === 'undefined' ? '' : stories[i]['tasks'][t][backlogTasksColumns[j]];
                     if ((i+tasksAdded)%2 === 0) {
-                        data[4+i+tasksAdded][j+1].metadata.style = taskOddCellStyle.id;
+                        data[4+i+tasksAdded][j+1].metadata.style = styles.taskOddCell.id;
                     } else {
-                        data[4+i+tasksAdded][j+1].metadata.style = taskDefaultCellStyle.id;
+                        data[4+i+tasksAdded][j+1].metadata.style = styles.taskDefaultCell.id;
                     }
                 }
             }
@@ -636,16 +491,9 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     var iterationColumns = ['id', 'epic', 'title', 'owner', 'status', 'estimate', 'effort', 'details'];
 
-    var prepareRelease = function(builder, iterations) {
+    var prepareRelease = function(builder, iterations, Style) {
 
-        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, i, j, k;
-        var stylesheet = workbook.getStyleSheet(),
-            titleStyle = stylesheet.createFormat(titleStyles),
-            headerStyle = stylesheet.createFormat(headerCellStyles),
-            oddCellStyle = stylesheet.createFormat(oddCellStyles),
-            oddBoldCellStyle = stylesheet.createFormat(oddBoldCellStyles),
-            defaultCellStyle = stylesheet.createFormat(defaultCellStyles),
-            defaultRightCellStyle = stylesheet.createFormat(defaultRightCellStyles);
+        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, i, j, k, styles = Style(workbook);
 
         for (i=0; i < l; i++) {
 
@@ -663,43 +511,43 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                 {width: 60}
             ]);
 
-            var data = prepareDefaultDataSet(defaultCellStyle, maxRows);
+            var data = prepareDefaultDataSet(styles.defaultCell, maxRows);
 
             data[1][1].value = iteration;
-            data[1][1].metadata.style = titleStyle.id;
+            data[1][1].metadata.style = styles.title.id;
 
             data[4][1].value = 'Start date';
-            data[4][1].metadata.style = defaultRightCellStyle.id;
+            data[4][1].metadata.style = styles.defaultRightCell.id;
             data[4][4].value = 'End date';
-            data[4][4].metadata.style = defaultRightCellStyle.id;
+            data[4][4].metadata.style = styles.defaultRightCell.id;
 
             data[4][2].value = iterations[i].startDate;
-            data[4][2].metadata.style = oddBoldCellStyle.id;
+            data[4][2].metadata.style = styles.oddBoldCell.id;
             data[4][5].value = iterations[i].endDate;
-            data[4][5].metadata.style = oddBoldCellStyle.id;
+            data[4][5].metadata.style = styles.oddBoldCell.id;
 
             data[6][1].value = 'Accepted';
-            data[6][1].metadata.style = defaultRightCellStyle.id;
+            data[6][1].metadata.style = styles.defaultRightCell.id;
             data[6][4].value = 'Estimate';
-            data[6][4].metadata.style = defaultRightCellStyle.id;
+            data[6][4].metadata.style = styles.defaultRightCell.id;
 
             data[6][2].value = 'SUMIF(F:F;"Accepted";G:G)';
-            data[6][2].metadata.style = oddBoldCellStyle.id;
+            data[6][2].metadata.style = styles.oddBoldCell.id;
             data[6][2].metadata.type = 'formula';
             data[6][5].value = 'SUMIF(B:B;"<>";G:G)';
-            data[6][5].metadata.style = oddBoldCellStyle.id;
+            data[6][5].metadata.style = styles.oddBoldCell.id;
             data[6][5].metadata.type = 'formula';
 
             for (j=0; j<n; j++) {
                 data[9][j+1].value = iterationColumns[j].capitalize();
-                data[9][j+1].metadata.style = headerStyle.id;
+                data[9][j+1].metadata.style = styles.header.id;
             }
 
             for (k=0; k<s; k++) {
                 for (j=0; j<n; j++) {
                     data[10+k][j+1].value = typeof iterations[i].stories[k][iterationColumns[j]] === 'undefined' ? '' : iterations[i].stories[k][iterationColumns[j]];
                     if (k%2 === 0) {
-                        data[10+k][j+1].metadata.style = oddCellStyle.id;
+                        data[10+k][j+1].metadata.style = styles.oddCell.id;
                     }
                 }
             }
