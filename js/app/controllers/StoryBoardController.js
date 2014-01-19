@@ -22,7 +22,6 @@ cloudScrum.controller('StoryBoardController', function StoryBoardController($sco
             }, 100);//instant redirect is causing some unexpected behaviour with sortable widget
         } else {
             Google.getReleaseStories(releaseId).then(function(data) {
-                console.log(data);
                 //TODO take current iteration, allow to change
                 for (var i=0; i<data[0].stories.length; i++) {
                     var status = $.trim(data[0].stories[i].status);

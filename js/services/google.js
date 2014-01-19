@@ -99,54 +99,10 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     self.createSpreadsheet = function(name, parent) {
         return createFile(name, parent, 'application/vnd.google-apps.spreadsheet');
     };
-    //TODO getBacklogStories and getReleaseStories are quite similar - create one function
+
     self.getBacklogStories = function(id) {
-
         return downloadExcelFile(id, function(XLSX, wb) {
-
-            var sheet = wb.Sheets[wb.SheetNames[0]], stories = [], r = 4, n = backlogColumns.length, nt = backlogTasksColumns.length, j, val, tmp, tmp2, maxId = 0;
-
-            while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
-
-                if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
-
-                    var story = {};
-
-                    for (j=0; j<n; j++) {
-                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                        if (typeof val !== 'undefined') {
-                            story[backlogColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                        }
-                    }
-
-                    tmp2 = parseInt(story['id'].replace('S-', ''));
-                    if (tmp2 > maxId) {
-                        maxId = tmp2;
-                    }
-
-                    story['tasks'] = [];
-                    stories.push(story);
-                } else {
-
-                    var task = {};
-
-                    for (j=0; j<n; j++) {
-                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                        if (typeof val !== 'undefined' && backlogTasksColumns[j] !== '') {
-                            task[backlogTasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                        }
-                    }
-
-                    tmp = stories[stories.length-1]['tasks'];
-                    task['id'] = 'T-' + (tmp.length+1);
-
-                    tmp.push(task);
-                }
-
-                r++;
-            }
-
-            deferred2.resolve({stories: stories, maxId: maxId});
+            deferred2.resolve(readStories(XLSX, wb.Sheets[wb.SheetNames[0]], 4, backlogColumns, backlogTasksColumns));
         });
     };
 
@@ -154,51 +110,16 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
         return downloadExcelFile(id, function(XLSX, wb) {
 
-            var iterations = [], n = iterationColumns.length, tmp;
+            var iterations = [];
 
             for (var sheetName in wb.Sheets) {
 
-                var sheet = wb.Sheets[sheetName], stories = [], r = 10;
-
-                while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
-
-                    if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
-
-                        var story = {};
-
-                        for (var j=0; j<n; j++) {
-                            var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                            if (typeof val !== 'undefined') {
-                                story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                            }
-                        }
-
-                        story['tasks'] = [];
-                        stories.push(story);
-                    } else {
-
-                        var task = {};
-
-                        for (j=0; j<n; j++) {
-                            val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                            if (typeof val !== 'undefined' && iterationTasksColumns[j] !== '') {
-                                task[iterationTasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                            }
-                        }
-
-                        tmp = stories[stories.length-1]['tasks'];
-                        task['id'] = 'T-' + (tmp.length+1);
-
-                        tmp.push(task);
-                    }
-
-                    r++;
-                }
+                var sheet = wb.Sheets[sheetName], data = readStories(XLSX, sheet, 10, iterationColumns, iterationTasksColumns);
 
                 iterations.push({
                     startDate: sheet[XLSX.utils.encode_cell({c: 2, r: 4})].v,
                     endDate: sheet[XLSX.utils.encode_cell({c: 5, r: 4})].v,
-                    stories: stories
+                    stories: data.stories
                 });
             }
 
@@ -613,5 +534,55 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         }
 
         return data;
+    };
+
+    var readStories = function(XLSX, sheet, startRow, columns, tasksColumns) {
+
+        var r = startRow, val, j, tmp, tmp2, maxId = 0, stories = [], n = columns.length, nt = tasksColumns.length;
+
+        while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
+
+            if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
+
+                var story = {};
+
+                for (j=0; j<n; j++) {
+                    val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    if (typeof val !== 'undefined') {
+                        story[columns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    }
+                }
+
+                tmp2 = parseInt(story['id'].replace('S-', ''));
+                if (tmp2 > maxId) {
+                    maxId = tmp2;
+                }
+
+                story['tasks'] = [];
+                stories.push(story);
+            } else {
+
+                var task = {};
+
+                for (j=0; j<nt; j++) {
+                    val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    if (typeof val !== 'undefined' && tasksColumns[j] !== '') {
+                        task[tasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    }
+                }
+
+                tmp = stories[stories.length-1]['tasks'];
+                task['id'] = 'T-' + (tmp.length+1);
+
+                tmp.push(task);
+            }
+
+            r++;
+        }
+
+        return {
+            stories: stories,
+            maxId: maxId
+        };
     };
 });
