@@ -20,6 +20,7 @@
         <div class="navbar-collapse collapse navbar-responsive-collapse">
             <ul class="nav navbar-nav ng-hide" ng-show="authorized">
                 <li ng-class="{ active: page === 'BacklogController' }"><a href="#/backlog">Backlog</a></li>
+                <li ng-class="{ active: page === 'IterationTrackingController' }"><a href="#/iteration-tracking">Iteration tracking</a></li>
                 <li ng-class="{ active: page === 'StoryBoardController' }"><a href="#/story-board">Story board</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right ng-hide" ng-show="authorized">
@@ -99,6 +100,7 @@
     <script src="js/app/controllers/DashboardController.js"></script>
     <script src="js/app/controllers/BacklogController.js"></script>
     <script src="js/app/controllers/StoryBoardController.js"></script>
+    <script src="js/app/controllers/IterationTrackingController.js"></script>
     <script src="js/services/ngStorage.js"></script>
     <script src="js/services/google.js"></script>
     <script src="js/services/flow.js"></script>
