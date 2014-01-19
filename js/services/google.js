@@ -102,91 +102,88 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     self.getBacklogStories = function(id) {
 
-        deferred2 = $q.defer();
+        return downloadExcelFile(id, function(XLSX, wb) {
 
-        var timeoutPromise = $timeout(function() {
-            deferred2.reject(self.ERROR_TIMEOUT);
-            $rootScope.$apply();
-        }, timeoutTime);
+            var sheet = wb.Sheets[wb.SheetNames[0]], stories = [], r = 4, n = backlogColumns.length, nt = backlogTasksColumns.length, j, val, tmp, tmp2, maxId = 0;
 
-        $.getScript('https://spreadsheets.google.com/feeds/cells/' + id + '/1/private/full?access_token=' + gapi.auth.getToken().access_token + '&alt=json-in-script&callback=receiveBacklogCells', function() {
-            $timeout.cancel(timeoutPromise);
+            while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
+
+                if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
+
+                    var story = {};
+
+                    for (j=0; j<n; j++) {
+                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        if (typeof val !== 'undefined') {
+                            story[backlogColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        }
+                    }
+
+                    tmp2 = parseInt(story['id'].replace('S-', ''));
+                    if (tmp2 > maxId) {
+                        maxId = tmp2;
+                    }
+
+                    story['tasks'] = [];
+                    stories.push(story);
+                } else {
+
+                    var task = {};
+
+                    for (j=0; j<n; j++) {
+                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        if (typeof val !== 'undefined' && backlogTasksColumns[j] !== '') {
+                            task[backlogTasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        }
+                    }
+
+                    tmp = stories[stories.length-1]['tasks'];
+                    task['id'] = 'T-' + (tmp.length+1);
+
+                    tmp.push(task);
+                }
+
+                r++;
+            }
+
+            deferred2.resolve({stories: stories, maxId: maxId});
         });
-
-        return deferred2.promise;
     };
 
     self.getReleaseStories = function(id) {
 
-        deferred2 = $q.defer();
+        return downloadExcelFile(id, function(XLSX, wb) {
 
-        var timeoutPromise = $timeout(function() {
-            deferred2.reject(self.ERROR_TIMEOUT);
-            $rootScope.$apply();
-        }, timeoutTime);
+            var iterations = [], n = iterationColumns.length;
 
-        require(['xlsx'], function(XLSX) {
+            for (var sheetName in wb.Sheets) {
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://docs.google.com/feeds/download/spreadsheets/Export?key=' + id + '&exportFormat=xlsx');
-            xhr.responseType = 'arraybuffer';
-            xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+                var sheet = wb.Sheets[sheetName], stories = [], r = 10;
 
-            xhr.onload = function() {
+                while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
 
-                if (xhr.status === 200) {
+                    var story = {};
 
-                    var uInt8Array = new Uint8Array(this.response), i = uInt8Array.length, binaryString = new Array(i);
-
-                    while (i--) {
-                        binaryString[i] = String.fromCharCode(uInt8Array[i]);
-                    }
-
-                    var data = binaryString.join(''), wb = XLSX.read(window.btoa(data), {type: 'base64'}), iterations = [], n = iterationColumns.length;
-
-                    for (var sheetName in wb.Sheets) {
-
-                        var sheet = wb.Sheets[sheetName], stories = [], r = 10;
-
-                        while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
-
-                            var story = {};
-
-                            for (var j=0; j<n; j++) {
-                                var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                                if (typeof val !== 'undefined') {
-                                    story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                                }
-                            }
-
-                            stories.push(story);
-                            r++;
+                    for (var j=0; j<n; j++) {
+                        var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        if (typeof val !== 'undefined') {
+                            story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
                         }
-
-                        iterations.push({
-                            startDate: sheet[XLSX.utils.encode_cell({c: 2, r: 4})].v,
-                            endDate: sheet[XLSX.utils.encode_cell({c: 5, r: 4})].v,
-                            stories: stories
-                        });
                     }
 
-                    deferred2.resolve(iterations);
-                } else {
-                    deferred2.reject(self.HTTP_ERROR);
+                    stories.push(story);
+                    r++;
                 }
 
-                $timeout.cancel(timeoutPromise);
-            };
+                iterations.push({
+                    startDate: sheet[XLSX.utils.encode_cell({c: 2, r: 4})].v,
+                    endDate: sheet[XLSX.utils.encode_cell({c: 5, r: 4})].v,
+                    stories: stories
+                });
+            }
 
-            xhr.onerror = function() {
-                deferred2.reject(self.HTTP_ERROR);
-                $timeout.cancel(timeoutPromise);
-            };
-
-            xhr.send();
+            deferred2.resolve(iterations);
         });
-
-        return deferred2.promise;
     };
 
     self.saveBacklogStories = function(stories, id, name) {
@@ -251,6 +248,53 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         });
 
         return deferred.promise;
+    };
+
+    var downloadExcelFile = function(id, callback) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred2.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        require(['xlsx'], function(XLSX) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://docs.google.com/feeds/download/spreadsheets/Export?key=' + id + '&exportFormat=xlsx');
+            xhr.responseType = 'arraybuffer';
+            xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+
+            xhr.onload = function() {
+
+                if (xhr.status === 200) {
+
+                    var uInt8Array = new Uint8Array(this.response), i = uInt8Array.length, binaryString = new Array(i);
+
+                    while (i--) {
+                        binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                    }
+
+                    var data = binaryString.join('');
+
+                    callback(XLSX, XLSX.read(window.btoa(data), {type: 'base64'}));
+                } else {
+                    deferred2.reject(self.HTTP_ERROR);
+                }
+
+                $timeout.cancel(timeoutPromise);
+            };
+
+            xhr.onerror = function() {
+                deferred2.reject(self.HTTP_ERROR);
+                $timeout.cancel(timeoutPromise);
+            };
+
+            xhr.send();
+        });
+
+        return deferred2.promise;
     };
 
     /**
@@ -526,9 +570,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     };
 
     var backlogColumns = ['id', 'epic', 'title', 'estimate', 'details'],
-        backlogIntColumns = [false, false, false, true, false],
-        backlogTasksColumns = ['', '', 'title', 'estimate', 'details'],
-        backlogTasksIntColumns = [false, false, false, true, false];
+        backlogTasksColumns = ['', '', 'title', 'estimate', 'details'];
 
     var prepareBacklog = function(builder, stories, name) {
 
@@ -688,43 +730,5 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         }
 
         return data;
-    };
-
-    window.receiveBacklogCells = function(data) {
-
-        var tmp, tmp2, stories = [], row, col, maxId = 0;
-
-        if (typeof data.feed.entry !== 'undefined') {
-            for (var i = 0; i < data.feed.entry.length; i++) {
-
-                tmp = data.feed.entry[i].gs$cell;
-                row = tmp.row - 5;
-                col = tmp.col - 2;
-
-                if (row < 0 || col < 0 || col > 4) {
-                    continue;
-                }
-
-                if (typeof stories[row] === 'undefined') {
-                    stories[row] = {};
-                }
-
-                stories[row][backlogColumns[col]] = backlogIntColumns[col] ? parseInt(tmp.$t) : tmp.$t;
-
-                if (col === 0) {
-                    tmp2 = parseInt(tmp.$t.replace('S-', ''));
-                    if (tmp2 > maxId) {
-                        maxId = tmp2;
-                    }
-                }
-            }
-        }
-
-        for (var j=0,l=stories.length;j<l;j++) {
-            stories[j]['tasks'] = [];
-        }
-
-        deferred2.resolve({stories: stories, maxId: maxId});
-        $rootScope.$apply();
     };
 });
