@@ -489,15 +489,16 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return builder.createFile(workbook);
     };
 
-    var iterationColumns = ['id', 'epic', 'title', 'owner', 'status', 'estimate', 'effort', 'details'];
+    var iterationColumns = ['id', 'epic', 'title', 'owner', 'status', 'estimate', 'effort', 'details'],
+        iterationTasksColumns = ['', '', 'title', 'owner', 'status', 'estimate', 'effort', 'details'];
 
     var prepareRelease = function(builder, iterations, Style) {
 
-        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, i, j, k, styles = Style(workbook);
+        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, nt = iterationTasksColumns.length, i, j, k, styles = Style(workbook);
 
         for (i=0; i < l; i++) {
 
-            var iteration = 'Iteration ' + (i+1), worksheet = workbook.createWorksheet({name: iteration}), s = iterations[i].stories.length, maxRows = 20 + s;
+            var iteration = 'Iteration ' + (i+1), worksheet = workbook.createWorksheet({name: iteration}), s = iterations[i].stories.length, maxRows = 20 + s, t, tl, tasksAdded = 0;
 
             worksheet.setColumns([
                 {width: 2},
@@ -545,9 +546,23 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
             for (k=0; k<s; k++) {
                 for (j=0; j<n; j++) {
-                    data[10+k][j+1].value = typeof iterations[i].stories[k][iterationColumns[j]] === 'undefined' ? '' : iterations[i].stories[k][iterationColumns[j]];
-                    if (k%2 === 0) {
-                        data[10+k][j+1].metadata.style = styles.oddCell.id;
+                    data[10+k+tasksAdded][j+1].value = typeof iterations[i].stories[k][iterationColumns[j]] === 'undefined' ? '' : iterations[i].stories[k][iterationColumns[j]];
+                    if ((k+tasksAdded%2) === 0) {
+                        data[10+k+tasksAdded][j+1].metadata.style = styles.oddCell.id;
+                    }
+                }
+                for (t=0,tl=iterations[i].stories[k]['tasks'].length; t<tl; t++) {
+                    ++tasksAdded;
+                    for (j=0; j<nt; j++) {
+                        if (iterationTasksColumns[j] === '') {
+                            continue;
+                        }
+                        data[10+k+tasksAdded][j+1].value = typeof iterations[i].stories[k]['tasks'][t][iterationTasksColumns[j]] === 'undefined' ? '' : iterations[i].stories[k]['tasks'][t][iterationTasksColumns[j]];
+                        if ((k+tasksAdded)%2 === 0) {
+                            data[10+k+tasksAdded][j+1].metadata.style = styles.taskOddCell.id;
+                        } else {
+                            data[10+k+tasksAdded][j+1].metadata.style = styles.taskDefaultCell.id;
+                        }
                     }
                 }
             }
