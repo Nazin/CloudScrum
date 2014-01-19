@@ -418,6 +418,38 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             left: {color: 'FFFFFFFF', style: 'thin'},
             right: {color: 'FFFFFFFF', style: 'thin'}
         }
+    }, taskDefaultCellStyles = {
+        font: {
+            color: 'FF999999',
+            size: 9
+        },
+        fill: {
+            type: 'pattern',
+            patternType: 'solid',
+            fgColor: 'FFFFFFFF'
+        },
+        border: {
+            bottom: {color: 'FFFFFFFF', style: 'thin'},
+            top: {color: 'FFFFFFFF', style: 'thin'},
+            left: {color: 'FFFFFFFF', style: 'thin'},
+            right: {color: 'FFFFFFFF', style: 'thin'}
+        }
+    }, taskOddCellStyles = {
+        font: {
+            color: 'FF999999',
+            size: 9
+        },
+        fill: {
+            type: 'pattern',
+            patternType: 'solid',
+            fgColor: 'FFF0F9F9'
+        },
+        border: {
+            bottom: {color: 'FFF0F9F9', style: 'thin'},
+            top: {color: 'FFF0F9F9', style: 'thin'},
+            left: {color: 'FFF0F9F9', style: 'thin'},
+            right: {color: 'FFF0F9F9', style: 'thin'}
+        }
     }, oddCellStyles = {
         font: {
             color: 'FF404040',
@@ -493,17 +525,22 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         }
     };
 
-    var backlogColumns = ['id', 'title', 'epic', 'estimate', 'details'],
-        backlogIntColumns = [false, false, false, true, false];
+    var backlogColumns = ['id', 'epic', 'title', 'estimate', 'details'],
+        backlogIntColumns = [false, false, false, true, false],
+        backlogTasksColumns = ['', '', 'title', 'estimate', 'details'],
+        backlogTasksIntColumns = [false, false, false, true, false];
 
     var prepareBacklog = function(builder, stories, name) {
 
-        var workbook = builder.createWorkbook(), worksheet = workbook.createWorksheet({name: 'Backlog'}), i, j, n = backlogColumns.length, l = stories.length, maxRows = 14 + l;
+        var workbook = builder.createWorkbook(), worksheet = workbook.createWorksheet({name: 'Backlog'}), i, j, n = backlogColumns.length, l = stories.length, maxRows = 14 + l, t, tl, tasksAdded = 0,
+            nt = backlogTasksColumns.length;
         var stylesheet = workbook.getStyleSheet(),
             titleStyle = stylesheet.createFormat(titleStyles),
             headerStyle = stylesheet.createFormat(headerCellStyles),
             oddCellStyle = stylesheet.createFormat(oddCellStyles),
-            defaultCellStyle = stylesheet.createFormat(defaultCellStyles);
+            defaultCellStyle = stylesheet.createFormat(defaultCellStyles),
+            taskDefaultCellStyle = stylesheet.createFormat(taskDefaultCellStyles),
+            taskOddCellStyle = stylesheet.createFormat(taskOddCellStyles);
 
         worksheet.setColumns([
             {width: 2},
@@ -514,7 +551,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             {width: 60}
         ]);
 
-        var data = prepareDefaultDataSet(defaultCellStyle, maxRows);
+        var data = prepareDefaultDataSet(defaultCellStyle, maxRows);//TODO maxRows + tasks?
 
         data[1][1].value = name;
         data[1][1].metadata.style = titleStyle.id;
@@ -526,9 +563,23 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
         for (i=0; i<l; i++) {
             for (j=0; j<n; j++) {
-                data[4+i][j+1].value = typeof stories[i][backlogColumns[j]] === 'undefined' ? '' : stories[i][backlogColumns[j]];
-                if (i%2 === 0) {
-                    data[4+i][j+1].metadata.style = oddCellStyle.id;
+                data[4+i+tasksAdded][j+1].value = typeof stories[i][backlogColumns[j]] === 'undefined' ? '' : stories[i][backlogColumns[j]];
+                if ((i+tasksAdded)%2 === 0) {
+                    data[4+i+tasksAdded][j+1].metadata.style = oddCellStyle.id;
+                }
+            }
+            for (t=0,tl=stories[i]['tasks'].length; t<tl; t++) {
+                ++tasksAdded;
+                for (j=0; j<nt; j++) {
+                    if (backlogTasksColumns[j] === '') {
+                        continue;
+                    }
+                    data[4+i+tasksAdded][j+1].value = typeof stories[i]['tasks'][t][backlogTasksColumns[j]] === 'undefined' ? '' : stories[i]['tasks'][t][backlogTasksColumns[j]];
+                    if ((i+tasksAdded)%2 === 0) {
+                        data[4+i+tasksAdded][j+1].metadata.style = taskOddCellStyle.id;
+                    } else {
+                        data[4+i+tasksAdded][j+1].metadata.style = taskDefaultCellStyle.id;
+                    }
                 }
             }
         }
@@ -669,12 +720,11 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             }
         }
 
+        for (var j=0,l=stories.length;j<l;j++) {
+            stories[j]['tasks'] = [];
+        }
+
         deferred2.resolve({stories: stories, maxId: maxId});
         $rootScope.$apply();
     };
-
-    //TODO should be moved to some more appropriate place
-    String.prototype.capitalize = function() {
-        return this.charAt(0).toUpperCase() + this.slice(1);
-    }
 });

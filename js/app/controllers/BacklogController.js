@@ -30,6 +30,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
     $scope.nextStoryId = 1;
     $scope.iterations = 0;
     $scope.newStoryModal = $('#new-story-modal');
+    $scope.newTaskModal = $('#new-task-modal');
 
     $scope.iterationLength = 7; //TODO obtain from configuration
     $scope.releaseStartDate = moment().add('days', 1).format('YYYY-MM-DD');
@@ -73,13 +74,33 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
             title: $scope.storyTitle,
             epic: typeof $scope.storyEpic === 'undefined' ? '' : $scope.storyEpic,
             estimate: $scope.storyEstimate,
-            details: typeof $scope.storyDetails === 'undefined' ? '' : $scope.storyDetails
+            details: typeof $scope.storyDetails === 'undefined' ? '' : $scope.storyDetails,
+            tasks: []
         });
         $scope.storyTitle = '';
         $scope.storyEpic = '';
         $scope.storyEstimate = '';
         $scope.storyDetails = '';
         $scope.newStoryModal.modal('hide');
+        //TODO save timeout (10s?) + ng-disabled on save button (when saving)
+    };
+
+    $scope.setStory = function(story) {
+        $scope.activeStory = story;
+    };
+
+    $scope.createTask = function() {
+        $scope.unsaved = true;
+        $scope.activeStory.tasks.push({
+            id: 'T-' + ($scope.activeStory.tasks.length+1),
+            title: $scope.taskTitle,
+            estimate: $scope.taskEstimate,
+            details: typeof $scope.taskDetails === 'undefined' ? '' : $scope.taskDetails
+        });
+        $scope.taskTitle = '';
+        $scope.taskEstimate = '';
+        $scope.taskDetails = '';
+        $scope.newTaskModal.modal('hide');
         //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
 

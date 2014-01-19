@@ -70,6 +70,32 @@
     .badge {
         float: right;
     }
+
+    .tasks {
+
+        position: relative;
+
+        > .add {
+            position: absolute;
+            right: 0;
+            top: 5px;
+        }
+
+        > .task {
+
+            border-bottom: 2px dotted #000;
+            margin-bottom: 15px;
+
+            &:last-child {
+                border-bottom: 0;
+            }
+        }
+
+        input,
+        textarea {
+            border-width: 1px !important;
+        }
+    }
 }
 
 .buttons-nav > button {

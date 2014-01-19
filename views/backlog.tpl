@@ -52,6 +52,28 @@
                                 <textarea class="form-control" rows="3" ng-model="story.details" ng-change="edit()" ng-readonly="planning"></textarea>
                             </div>
                         </div>
+                        <fieldset class="tasks">
+                            <legend>Tasks</legend>
+                            <button type="button" class="add btn btn-info btn-xs" ng-show="!planning" data-toggle="modal" data-target="#new-task-modal" ng-click="setStory(story)">Add task</button>
+                            <div class="no-tasks" ng-show="story.tasks.length===0">
+                                <p class="text-warning">There are no tasks defined for this story.</p>
+                            </div>
+                            <div class="task" ng-repeat="task in story.tasks">
+                                <div class="form-group">
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" ng-model="task.title" ng-change="edit()" ng-readonly="planning" placeholder="Title" required />
+                                    </div>
+                                    <div class="col-sm-3 col-sm-offset-1">
+                                        <input type="number" min="1" class="form-control" ng-model="task.estimate" ng-change="edit()" ng-readonly="planning" placeholder="Estimate" required />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <textarea class="form-control" rows="2" ng-model="task.details" ng-change="edit()" ng-readonly="planning" placeholder="Details"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
                     </div>
                 </div>
             </div>
@@ -97,6 +119,43 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" ng-disabled="newStoryForm.$invalid" ng-click="createStory()">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="new-task-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">New task</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-horizontal" name="newTaskForm" ng-submit="newTaskForm.$valid && createTask()" novalidate>
+                    <div class="form-group">
+                        <label for="taskTitle" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="taskTitle" ng-model="taskTitle" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEstimate" class="col-sm-2 control-label">Estimate</label>
+                        <div class="col-xs-3">
+                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="taskEstimate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDetails" class="col-sm-2 control-label">Details</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="taskDetails"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-disabled="newTaskForm.$invalid" ng-click="createTask()">Add</button>
             </div>
         </div>
     </div>
