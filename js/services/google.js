@@ -99,7 +99,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     self.createSpreadsheet = function(name, parent) {
         return createFile(name, parent, 'application/vnd.google-apps.spreadsheet');
     };
-
+    //TODO getBacklogStories and getReleaseStories are quite similar - create one function
     self.getBacklogStories = function(id) {
 
         return downloadExcelFile(id, function(XLSX, wb) {
@@ -154,7 +154,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
         return downloadExcelFile(id, function(XLSX, wb) {
 
-            var iterations = [], n = iterationColumns.length;
+            var iterations = [], n = iterationColumns.length, tmp;
 
             for (var sheetName in wb.Sheets) {
 
@@ -162,16 +162,36 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
                 while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
 
-                    var story = {};
+                    if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
 
-                    for (var j=0; j<n; j++) {
-                        var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                        if (typeof val !== 'undefined') {
-                            story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        var story = {};
+
+                        for (var j=0; j<n; j++) {
+                            var val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                            if (typeof val !== 'undefined') {
+                                story[iterationColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                            }
                         }
+
+                        story['tasks'] = [];
+                        stories.push(story);
+                    } else {
+
+                        var task = {};
+
+                        for (j=0; j<n; j++) {
+                            val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                            if (typeof val !== 'undefined' && iterationTasksColumns[j] !== '') {
+                                task[iterationTasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                            }
+                        }
+
+                        tmp = stories[stories.length-1]['tasks'];
+                        task['id'] = 'T-' + (tmp.length+1);
+
+                        tmp.push(task);
                     }
 
-                    stories.push(story);
                     r++;
                 }
 
