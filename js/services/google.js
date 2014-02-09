@@ -191,6 +191,78 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         return deferred.promise;
     };
 
+    self.getPermissionsList = function(fileId) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred2.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        var request = gapi.client.drive.permissions.list({
+            'fileId': fileId
+        });
+
+        request.execute(function(resp) {
+            deferred2.resolve(resp.items);
+            $timeout.cancel(timeoutPromise);
+            $rootScope.$apply();
+        });
+
+        return deferred2.promise;
+    };
+
+    self.newPermission = function(fileId, email) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred2.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        var request = gapi.client.drive.permissions.insert({
+            fileId: fileId,
+            resource: {
+                value: email,
+                type: 'user',
+                role: 'writer'
+            }
+        });
+
+        request.execute(function(resp) {
+            deferred2.resolve(resp);
+            $timeout.cancel(timeoutPromise);
+            $rootScope.$apply();
+        });
+
+        return deferred2.promise;
+    };
+
+    self.deletePermission = function(fileId, permissionId) {
+
+        deferred2 = $q.defer();
+
+        var timeoutPromise = $timeout(function() {
+            deferred2.reject(self.ERROR_TIMEOUT);
+            $rootScope.$apply();
+        }, timeoutTime);
+
+        var request = gapi.client.drive.permissions.delete({
+            fileId: fileId,
+            permissionId: permissionId
+        });
+
+        request.execute(function(resp) {
+            deferred2.resolve(resp);
+            $timeout.cancel(timeoutPromise);
+            $rootScope.$apply();
+        });
+
+        return deferred2.promise;
+    };
+
     var downloadExcelFile = function(id, callback) {
 
         deferred2 = $q.defer();

@@ -29,6 +29,10 @@ cloudScrum.config(function($routeProvider) {
         controller: 'IterationTrackingController',
         templateUrl: 'views/iteration-tracking.tpl',
         title: 'Iteration tracking'
+    }).when('/users', {
+        controller: 'UsersController',
+        templateUrl: 'views/users.tpl',
+        title: 'Users'
     });
 });
 
