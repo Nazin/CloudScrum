@@ -4,7 +4,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     var clientId = '641738097836.apps.googleusercontent.com',
         apiKey = 'AIzaSyBduR27RDdEu6gN5ggwi6JFdqANv_xFpLk',
-        scopes = 'https://www.googleapis.com/auth/drive https://spreadsheets.google.com/feeds/',
+        scopes = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://spreadsheets.google.com/feeds/',
         timeoutTime = 10000,
         isAuthorized = false,
         deferred = $q.defer(),
@@ -193,10 +193,10 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     self.getPermissionsList = function(fileId) {
 
-        deferred2 = $q.defer();
+        var deferred = $q.defer();
 
         var timeoutPromise = $timeout(function() {
-            deferred2.reject(self.ERROR_TIMEOUT);
+            deferred.reject(self.ERROR_TIMEOUT);
             $rootScope.$apply();
         }, timeoutTime);
 
@@ -205,12 +205,12 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         });
 
         request.execute(function(resp) {
-            deferred2.resolve(resp.items);
+            deferred.resolve(resp.items);
             $timeout.cancel(timeoutPromise);
             $rootScope.$apply();
         });
 
-        return deferred2.promise;
+        return deferred.promise;
     };
 
     self.newPermission = function(fileId, email) {
@@ -618,44 +618,47 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
         var r = startRow, val, j, tmp, tmp2, maxId = 0, stories = [], n = columns.length, nt = tasksColumns.length;
 
-        while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
+        if (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})] !== 'undefined') {
 
-            if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
+            while (typeof sheet[XLSX.utils.encode_cell({c: 3, r: r})].v !== 'undefined') {
 
-                var story = {};
+                if (typeof sheet[XLSX.utils.encode_cell({c: 1, r: r})].v !== 'undefined') {
 
-                for (j=0; j<n; j++) {
-                    val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                    if (typeof val !== 'undefined') {
-                        story[columns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    var story = {};
+
+                    for (j=0; j<n; j++) {
+                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        if (typeof val !== 'undefined') {
+                            story[columns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        }
                     }
-                }
 
-                tmp2 = parseInt(story['id'].replace('S-', ''));
-                if (tmp2 > maxId) {
-                    maxId = tmp2;
-                }
-
-                story['tasks'] = [];
-                stories.push(story);
-            } else {
-
-                var task = {};
-
-                for (j=0; j<nt; j++) {
-                    val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
-                    if (typeof val !== 'undefined' && tasksColumns[j] !== '') {
-                        task[tasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                    tmp2 = parseInt(story['id'].replace('S-', ''));
+                    if (tmp2 > maxId) {
+                        maxId = tmp2;
                     }
+
+                    story['tasks'] = [];
+                    stories.push(story);
+                } else {
+
+                    var task = {};
+
+                    for (j=0; j<nt; j++) {
+                        val = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        if (typeof val !== 'undefined' && tasksColumns[j] !== '') {
+                            task[tasksColumns[j]] = sheet[XLSX.utils.encode_cell({c: j+1, r: r})].v;
+                        }
+                    }
+
+                    tmp = stories[stories.length-1]['tasks'];
+                    task['id'] = 'T-' + (tmp.length+1);
+
+                    tmp.push(task);
                 }
 
-                tmp = stories[stories.length-1]['tasks'];
-                task['id'] = 'T-' + (tmp.length+1);
-
-                tmp.push(task);
+                r++;
             }
-
-            r++;
         }
 
         return {
