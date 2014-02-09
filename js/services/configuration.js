@@ -9,6 +9,6 @@ cloudScrum.service('Configuration', function Configuration() {
     };
 
     self.getTasksStatuses = function() {
-        return ['', 'In progress', 'Blocked', 'Completed']; //TODO grab from google drive?
+        return ['Not started', 'In progress', 'Blocked', 'Completed']; //TODO grab from google drive?
     };
 });

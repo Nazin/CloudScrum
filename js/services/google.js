@@ -568,8 +568,8 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                     }
                 }
                 for (t=0,tl=iterations[i].stories[k]['tasks'].length; t<tl; t++) {
-                    if (typeof iterations[i].stories[k]['tasks'][t] === 'undefined') {
-                        iterations[i].stories[k]['tasks'][t] = taskStatuses[0];
+                    if (typeof iterations[i].stories[k]['tasks'][t]['status'] === 'undefined') {
+                        iterations[i].stories[k]['tasks'][t]['status'] = taskStatuses[0];
                     }
                     ++tasksAdded;
                     for (j=0; j<nt; j++) {
