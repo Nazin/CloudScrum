@@ -57,3 +57,9 @@ cloudScrum.directive('ngMax', function() {
         }
     };
 });
+
+cloudScrum.directive('ngBsPopover', function() {
+    return function(scope, element) {
+        element.find('a.popover-toggle').popover();
+    };
+});
