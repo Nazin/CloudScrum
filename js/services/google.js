@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout) {
+cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout, Configuration) {
 
     var clientId = '641738097836.apps.googleusercontent.com',
         apiKey = 'AIzaSyBduR27RDdEu6gN5ggwi6JFdqANv_xFpLk',
@@ -507,7 +507,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
     var prepareRelease = function(builder, iterations, Style) {
 
-        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, nt = iterationTasksColumns.length, i, j, k, styles = Style(workbook);
+        var workbook = builder.createWorkbook(), l = iterations.length, n = iterationColumns.length, nt = iterationTasksColumns.length, i, j, k, styles = Style(workbook), storiesStatuses = Configuration.getStoriesStatuses(), taskStatuses = Configuration.getTasksStatuses();
 
         for (i=0; i < l; i++) {
 
@@ -558,6 +558,9 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             }
 
             for (k=0; k<s; k++) {
+                if (typeof iterations[i].stories[k]['status'] === 'undefined') {
+                    iterations[i].stories[k]['status'] = storiesStatuses[0];
+                }
                 for (j=0; j<n; j++) {
                     data[10+k+tasksAdded][j+1].value = typeof iterations[i].stories[k][iterationColumns[j]] === 'undefined' ? '' : iterations[i].stories[k][iterationColumns[j]];
                     if ((k+tasksAdded%2) === 0) {
@@ -565,6 +568,9 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                     }
                 }
                 for (t=0,tl=iterations[i].stories[k]['tasks'].length; t<tl; t++) {
+                    if (typeof iterations[i].stories[k]['tasks'][t] === 'undefined') {
+                        iterations[i].stories[k]['tasks'][t] = taskStatuses[0];
+                    }
                     ++tasksAdded;
                     for (j=0; j<nt; j++) {
                         if (iterationTasksColumns[j] === '') {

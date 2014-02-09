@@ -1,11 +1,8 @@
 'use strict';
 
-cloudScrum.controller('StoryBoardController', function StoryBoardController($scope, $rootScope, $location, $timeout, Google, Flow) {
+cloudScrum.controller('StoryBoardController', function StoryBoardController($scope, $rootScope, $location, $timeout, Google, Flow, Configuration) {
 
-    $scope.statusesInfo = [ //TODO grab from config
-        'Not started', 'In progress', 'Completed', 'Testing', 'Accepted', 'Blocked'
-    ];
-
+    $scope.statusesInfo = Configuration.getStoriesStatuses();
     var statusesInverted = _.invert($scope.statusesInfo);
 
     $scope.statuses = [];
