@@ -49,6 +49,10 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope, $timeout
         return releaseId;
     };
 
+    self.getReleaseName = function() {
+        return typeof projects[projectId] === 'undefined' || typeof releaseId === 'undefined' ? undefined : projects[projectId]['releases'][releaseId]['name'];
+    };
+
     self.getBacklogId = function() {
         return typeof projects[projectId] !== 'undefined' ? projects[projectId]['backlog'] : undefined;
     };
