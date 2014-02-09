@@ -21,6 +21,11 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     };
 
     self.login = function() {
+        if (typeof $rootScope.forceNewLogin !== 'undefined' && $rootScope.forceNewLogin) {
+            deferred = $q.defer();
+            self.handleClientLoad();
+            $rootScope.forceNewLogin = false;
+        }
         return deferred.promise;
     };
 

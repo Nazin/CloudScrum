@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('AuthController', function AuthController($scope, $rootScope, $location, Google) {
+cloudScrum.controller('AuthController', function AuthController($scope, $rootScope, $location, Google, Flow) {
 
     Google.login().finally(function() {
         $rootScope.loading = false;
@@ -11,6 +11,7 @@ cloudScrum.controller('AuthController', function AuthController($scope, $rootSco
         Google.handleAuthClick().then(function() {
 
             $rootScope.authorized = true;
+            $rootScope.forceNewLogin = true;
             $rootScope.loading = true;
 
             Google.findCompaniesFiles().then(function(files) {
@@ -24,7 +25,7 @@ cloudScrum.controller('AuthController', function AuthController($scope, $rootSco
                     }
 
                     if (files.length === 1) {
-                        $rootScope.setCompany(files[0].id, files[0].title.replace('CloudScrum-', ''));
+                        Flow.setCompany(files[0].id, files[0].title.replace('CloudScrum-', ''));
                         $location.path('/projects');
                     } else {
                         alert('todo! more than 1 company detected!'); //TODO
