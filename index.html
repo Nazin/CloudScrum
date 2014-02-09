@@ -42,9 +42,8 @@
 
         <ul class="breadcrumb ng-hide" ng-show="authorized">
             <li><a href="#/projects">{{selectedCompanyName}}</a></li>
-            <li ng-if="page !== 'ProjectsController'"><a href="#/projects">{{selectedProjectName}}</a></li>
-            <li class="active" ng-if="page === 'ProjectsController'">Projects</li>
-            <li ng-if="page !== 'ProjectsController'" class="active">{{title}}</li>
+            <li ng-if="nameInBreadcrumb"><a href="#/projects">{{selectedProjectName}}</a></li>
+            <li class="active">{{title}}</li>
         </ul>
 
         <div class="page-header">

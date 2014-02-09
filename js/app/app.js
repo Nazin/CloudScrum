@@ -15,7 +15,8 @@ cloudScrum.config(function($routeProvider) {
     }).when('/projects', {
         controller: 'ProjectsController',
         templateUrl: 'views/projects.tpl',
-        title: 'Projects'
+        title: 'Projects',
+        nameInBreadcrumb: false
     }).when('/backlog', {
         controller: 'BacklogController',
         templateUrl: 'views/backlog.tpl',
@@ -74,6 +75,7 @@ cloudScrum.run(function($rootScope, $route, $location, $localStorage, Google, Fl
 
     $rootScope.$on('$routeChangeSuccess', function(event, current) {
         $rootScope.page = current.$$route.controller;
+        $rootScope.nameInBreadcrumb = typeof current.$$route.nameInBreadcrumb === 'undefined' ? true : current.$$route.nameInBreadcrumb;
         $rootScope.title = current.$$route.title;
     });
 
