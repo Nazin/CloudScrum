@@ -40,6 +40,10 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope, $timeout
                     self.setRelease(key);
                 }
             }
+
+            if (typeof releaseId === 'undefined' && projects[projectId]['releases'].length !== 0) {
+                self.setRelease(key);
+            }
         }
 
         return releaseId;
