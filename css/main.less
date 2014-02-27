@@ -149,11 +149,13 @@ textarea {
     tr {
 
         > td {
+
             &:first-child {
 
                 width: 13px;
 
                 span {
+
                     cursor: pointer;
                     line-height: 11px;
                     display: inline-block;
@@ -163,6 +165,10 @@ textarea {
                     height: 13px;
                     color: #fff;
                     text-align: center;
+
+                    &:before {
+                        content: '+';
+                    }
                 }
             }
         }
@@ -175,8 +181,15 @@ textarea {
         font-size: 14px;
     }
 
-    select.input-sm {
-        line-height: 28px;
+    select {
+
+        &.input-sm {
+            line-height: 28px;
+        }
+
+        &.ng-valid {
+            border: 1px solid #DCE4EC;
+        }
     }
 
     input {
@@ -189,14 +202,35 @@ textarea {
         color: #6B6B6B;
         display: none;
 
-        &.visible {
-            display: table-row;
-        }
-
         .input-sm {
             font-size: 13px;
             padding: 2px;
         }
+    }
+
+    tbody {
+        &.active {
+            tr {
+
+                &.task {
+                    display: table-row;
+                }
+
+                > td {
+                    &:first-child {
+                        span {
+                            &:before {
+                                content: '-';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .add-task {
+        text-align: right;
     }
 }
 

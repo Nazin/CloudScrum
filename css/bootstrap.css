@@ -7597,6 +7597,7 @@ textarea.ng-invalid {
 .has-success .form-control,
 .has-success .form-control:focus,
 input.ng-valid,
+select.ng-valid,
 textarea.ng-valid {
     border: 2px solid #18bc9c;
 }

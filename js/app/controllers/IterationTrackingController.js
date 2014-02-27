@@ -9,6 +9,8 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     $scope.users = [];
     $scope.unsaved = false;
     $scope.saving = false;
+    $scope.taskStatus = $scope.tasksStatusesInfo[0];
+    $scope.newTaskModal = $('#new-task-modal');
 
     Google.login().then(function() {
         Flow.on(function() {
@@ -53,19 +55,49 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         }
     };
 
-    $scope.toggleTasks = function($event, storyId) {
+    $scope.toggleTasks = function($event) {
         var tmp = $($event.currentTarget);
-        tmp.parents('tbody').find('[data-story=\''+ storyId +'\']').toggleClass('visible');
-        tmp.html(tmp.html() === '+' ? '-' : '+');
+        tmp.parents('tbody').toggleClass('active');
     };
 
     $scope.updateEffort = function(story) {
+
+        if (typeof story.effort === 'undefined' || story.effort === null) {
+            story.effort = 0;
+        }
+
         var effort = 0;
         for (var i=0; i<story.tasks.length; i++) {
-            effort += parseInt(story.tasks[i]['effort']);
+            effort += story.tasks[i]['effort'] ? parseInt(story.tasks[i]['effort']) : 0;
         }
-        story.effort = effort;
-        $scope.edit();
+
+        if (story.effort !== effort) {
+            story.effort = effort;
+            $scope.edit();
+        }
+    };
+
+    $scope.setStory = function(story) {
+        $scope.activeStory = story;
+    };
+
+    $scope.createTask = function() {
+        $scope.unsaved = true;
+        $scope.activeStory.tasks.push({
+            id: 'T-' + ($scope.activeStory.tasks.length + 1),
+            title: $scope.taskTitle,
+            estimate: $scope.taskEstimate,
+            owner: $scope.taskOwner,
+            status: $scope.taskStatus,
+            details: typeof $scope.taskDetails === 'undefined' ? '' : $scope.taskDetails
+        });
+        $scope.taskTitle = '';
+        $scope.taskEstimate = '';
+        $scope.taskOwner = '';
+        $scope.taskStatus = $scope.tasksStatusesInfo[0];
+        $scope.taskDetails = '';
+        $scope.newTaskModal.modal('hide');
+        //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
 
     $scope.showStoryDetails = function(story) {

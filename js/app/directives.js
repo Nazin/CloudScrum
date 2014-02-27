@@ -10,7 +10,7 @@ cloudScrum.directive('ngMin', function() {
         require: 'ngModel',
         link: function(scope, elem, attr, ctrl) {
 
-            scope.$watch(attr.ngMin, function(){
+            scope.$watch(attr.ngMin, function() {
                 ctrl.$setViewValue(ctrl.$viewValue);
             });
 
