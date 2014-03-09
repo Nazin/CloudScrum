@@ -175,6 +175,7 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
                 stories.push($scope.stories[i]);
             } else {
                 iterations.push({
+                    closed: false,
                     stories: stories.slice(0),
                     startDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration-1)).format('YYYY-MM-DD'),
                     endDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration++)).format('YYYY-MM-DD')

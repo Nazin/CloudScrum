@@ -1,3 +1,42 @@
+<form role="form" class="form-inline" id="release-iteration-breadcrumb" novalidate>
+    <div class="form-group">
+        <select class="form-control input-sm" ng-model="release" ng-options="release.name for (id, release) in releases" ng-change="changeRelease(this)" title="Change release"></select>
+    </div>
+    <div class="form-group">
+        <select class="form-control input-sm" ng-model="iteration" ng-options="iteration.name for iteration in iterations" ng-change="updateStoryPoints()" title="Change iteration"></select>
+    </div>
+</form>
+
+<div class="row" id="iteration-status">
+    <div class="col-sm-6 row">
+        <div class="col-xs-6 right">
+            <b>Start date</b>:<br />
+            <b>End date</b>:
+        </div>
+        <div class="col-xs-6">
+            {{iteration.startDate}}<br />
+            {{iteration.endDate}}
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="row">
+            <div class="col-xs-6 right">
+                <b>Estimated</b>:<br/>
+                <b>Accepted</b>:
+            </div>
+            <div class="col-xs-6">
+                {{storyPointsEstimated}}<br/>
+                {{storyPointsAccepted}}
+            </div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{percentCompleted}}" aria-valuemin="0" aria-valuemax="100" style="width: {{percentCompleted}}%">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <p class="clearfix buttons-nav">
     <button type="button" class="btn btn-info pull-right" ng-click="saveRelease()" ng-show="unsaved" ng-disabled="editIterationForm.$invalid">Save</button>
 </p>
@@ -16,7 +55,7 @@
                 <th>Effort</th>
             </tr>
         </thead>
-        <tbody ng-repeat="story in stories">
+        <tbody ng-repeat="story in iteration.stories">
             <tr>
                 <td><span ng-click="toggleTasks($event)"></span></td>
                 <td>{{story.id}}</td>
@@ -26,14 +65,14 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="story.owner" ng-options="user.emailAddress as user.name for user in users" ng-change="edit()">
+                        <select class="form-control input-sm" ng-model="story.owner" ng-options="user.emailAddress as user.name for user in users" ng-change="edit()" ng-disabled="iteration.closed">
                             <option value=""></option>
                         </select>
                     </div>
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="story.status" ng-options="status for status in storiesStatusesInfo" ng-change="edit()"></select>
+                        <select class="form-control input-sm" ng-model="story.status" ng-options="status for status in storiesStatusesInfo" ng-change="edit();updateStoryPoints();" ng-disabled="iteration.closed"></select>
                     </div>
                 </td>
                 <td>{{story.estimate}} SP</td>
@@ -46,26 +85,26 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="task.owner" ng-options="user.emailAddress as user.name for user in users" ng-change="edit()">
+                        <select class="form-control input-sm" ng-model="task.owner" ng-options="user.emailAddress as user.name for user in users" ng-change="edit()" ng-disabled="iteration.closed">
                             <option value=""></option>
                         </select>
                     </div>
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="task.status" ng-options="status for status in tasksStatusesInfo" ng-change="edit()"></select>
+                        <select class="form-control input-sm" ng-model="task.status" ng-options="status for status in tasksStatusesInfo" ng-change="edit()" ng-disabled="iteration.closed"></select>
                     </div>
                 </td>
                 <td>{{task.estimate}} h</td>
                 <td>
                     <div class="form-group">
-                        <input type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-change="updateEffort(story)" /> h
+                        <input type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-change="updateEffort(story)" ng-readonly="iteration.closed" /> h
                     </div>
                 </td>
             </tr>
             <tr class="task" data-story="{{story.id}}">
                 <td class="add-task" colspan="8">
-                    <button type="button" class="add btn btn-info btn-xs" data-toggle="modal" data-target="#new-task-modal" ng-click="setStory(story)">Add task</button>
+                    <button type="button" class="add btn btn-info btn-xs" data-toggle="modal" data-target="#new-task-modal" ng-click="setStory(story)" ng-disabled="iteration.closed">Add task</button>
                 </td>
             </tr>
         </tbody>

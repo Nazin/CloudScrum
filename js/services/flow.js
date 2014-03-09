@@ -53,6 +53,17 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope, $timeout
         return typeof projects[projectId] === 'undefined' || typeof releaseId === 'undefined' ? undefined : projects[projectId]['releases'][releaseId]['name'];
     };
 
+    self.getReleases = function() {
+        var tmp = typeof projects[projectId] === 'undefined' ? {} : projects[projectId]['releases'], tmpNew = {};
+        for (var key in tmp) {
+            if (tmp.hasOwnProperty(key)) {
+                tmpNew[key] = tmp[key];
+                tmpNew[key]['id'] = key;
+            }
+        }
+        return tmpNew;
+    };
+
     self.getBacklogId = function() {
         return typeof projects[projectId] !== 'undefined' ? projects[projectId]['backlog'] : undefined;
     };

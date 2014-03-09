@@ -119,9 +119,11 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
 
             for (var sheetName in wb.Sheets) {
 
-                var sheet = wb.Sheets[sheetName], data = readStories(XLSX, sheet, 10, iterationColumns, iterationTasksColumns);
+                var sheet = wb.Sheets[sheetName], data = readStories(XLSX, sheet, 10, iterationColumns, iterationTasksColumns), closed = sheet[XLSX.utils.encode_cell({c: 8, r: 4})].v === 'Yes';
 
                 iterations.push({
+                    name: sheet[XLSX.utils.encode_cell({c: 1, r: 1})].v + (closed ? ' (closed)' : ''),
+                    closed: closed,
                     startDate: sheet[XLSX.utils.encode_cell({c: 2, r: 4})].v,
                     endDate: sheet[XLSX.utils.encode_cell({c: 5, r: 4})].v,
                     stories: data.stories
@@ -544,6 +546,11 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
             data[4][2].metadata.style = styles.oddBoldCell.id;
             data[4][5].value = iterations[i].endDate;
             data[4][5].metadata.style = styles.oddBoldCell.id;
+
+            data[4][7].value = 'Closed';
+            data[4][7].metadata.style = styles.defaultRightCell.id;
+            data[4][8].value = iterations[i].closed ? 'Yes' : 'No';
+            data[4][8].metadata.style = styles.oddBoldCell.id;
 
             data[6][1].value = 'Accepted';
             data[6][1].metadata.style = styles.defaultRightCell.id;
