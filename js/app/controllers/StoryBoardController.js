@@ -2,14 +2,12 @@
 
 cloudScrum.controller('StoryBoardController', function StoryBoardController($scope, $rootScope, $location, $timeout, Google, Flow, Configuration) {
 
-    $scope.statusesInfo = Configuration.getStoriesStatuses();
-    var statusesInverted = _.invert($scope.statusesInfo);
-
+    $scope.storiesStatusesInfo = Configuration.getStoriesStatuses();
     $scope.statuses = [];
+    $scope.iteration = {};
+    $scope.users = [];
 
-    for (var i=0; i<$scope.statusesInfo.length; i++) {
-        $scope.statuses.push([]);
-    }
+    var statusesInverted = _.invert($scope.storiesStatusesInfo);
 
     Google.login().then(function() {
         Flow.on(function() {
@@ -19,20 +17,8 @@ cloudScrum.controller('StoryBoardController', function StoryBoardController($sco
                     $location.path('/backlog');
                 }, 100);//instant redirect is causing some unexpected behaviour with sortable widget
             } else {
-                Google.getReleaseStories(releaseId).then(function(data) {
-                    //TODO take current iteration, allow to change
-                    for (var i=0; i<data[0].stories.length; i++) {
-                        var status = $.trim(data[0].stories[i].status);
-                        if (typeof status !== 'undefined' && status !== '' && typeof statusesInverted[status] !== 'undefined') {
-                            $scope.statuses[statusesInverted[status]].push(data[0].stories[i]);
-                        } else {
-                            $scope.statuses[0].push(data[0].stories[i]);
-                        }
-                    }
-                }, function(error) {
-                    alert('handle error: ' + error); //todo handle error
-                }).finally(function() {
-                    $rootScope.loading = false;
+                $scope.$broadcast('PARENT_READY', {
+                    releaseId: releaseId
                 });
             }
         });
@@ -41,5 +27,24 @@ cloudScrum.controller('StoryBoardController', function StoryBoardController($sco
     $scope.sortableOptions = {
         connectWith: '.stories',
         items: '.story'
+    };
+
+    $scope.loadReleaseCallback = function(iteration) {
+
+        $scope.iteration = iteration;
+        $scope.statuses = [];
+
+        for (var j=0; j<$scope.storiesStatusesInfo.length; j++) {
+            $scope.statuses.push([]);
+        }
+
+        for (var i=0; i<$scope.iteration.stories.length; i++) {
+            var status = $.trim($scope.iteration.stories[i].status);
+            if (typeof status !== 'undefined' && status !== '' && typeof statusesInverted[status] !== 'undefined') {
+                $scope.statuses[statusesInverted[status]].push($scope.iteration.stories[i]);
+            } else {
+                $scope.statuses[0].push($scope.iteration.stories[i]);
+            }
+        }
     };
 });
