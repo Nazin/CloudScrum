@@ -45,6 +45,8 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         $scope.storyPointsEstimated = estimated;
         $scope.storyPointsAccepted = accepted;
         $scope.percentCompleted = ($scope.storyPointsAccepted/$scope.storyPointsEstimated)*100;
+
+        $scope.loadIterationCallback($scope.iteration);
     };
 
     var loadRelease = function(id) {
@@ -68,7 +70,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
             $scope.release = $scope.releases[id];
             oldReleaseSelected = $scope.release;
 
-            $scope.loadReleaseCallback($scope.iteration);
+            $scope.loadReleaseCallback($scope.iteration, $scope.users);
         }, function(error) {
             alert('handle error: ' + error); //todo handle error
         }).finally(function() {
