@@ -16,6 +16,8 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     $scope.taskStatus = $scope.tasksStatusesInfo[0];
     $scope.newTaskModal = $('#new-task-modal');
 
+    var oldReleaseSelected = undefined;
+
     Google.login().then(function() {
         Flow.on(function() {
             var releaseId = Flow.getReleaseId();
@@ -111,6 +113,12 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     };
 
     $scope.changeRelease = function() {
+
+        if ($scope.unsaved && !confirm('There are some unsaved changes which you will lost! Do you really want to change the release?')) {
+            $scope.release = oldReleaseSelected;
+            return;
+        }
+
         loadRelease($scope.release.id);
     };
 
@@ -134,7 +142,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     };
 
     var loadRelease = function(id) {
-        //TODO alert if unsaved!!
+
         $rootScope.loading = true;
 
         Flow.setRelease(id);
@@ -152,6 +160,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
 
             $scope.releases = Flow.getReleases();
             $scope.release = $scope.releases[id];
+            oldReleaseSelected = $scope.release;
             $scope.unsaved = false;
         }, function(error) {
             alert('handle error: ' + error); //todo handle error
