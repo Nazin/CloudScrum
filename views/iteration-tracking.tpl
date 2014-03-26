@@ -125,19 +125,19 @@
                     <div class="form-group">
                         <label for="taskTitle" class="col-sm-2 control-label">Title</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="taskTitle" ng-model="taskTitle" required>
+                            <input type="text" class="form-control" id="taskTitle" ng-model="task.title" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="taskEstimate" class="col-sm-2 control-label">Estimate</label>
                         <div class="col-xs-3">
-                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="taskEstimate" required>
+                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="task.estimate" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="taskOwner" class="col-sm-2 control-label">Owner</label>
                         <div class="col-sm-10">
-                            <select class="form-control" id="taskOwner" ng-model="taskOwner" ng-options="user.emailAddress as user.name for user in users">
+                            <select class="form-control" id="taskOwner" ng-model="task.owner" ng-options="user.emailAddress as user.name for user in users">
                                 <option value=""></option>
                             </select>
                         </div>
@@ -145,13 +145,13 @@
                     <div class="form-group">
                         <label for="taskStatus" class="col-sm-2 control-label">Status</label>
                         <div class="col-sm-10">
-                            <select class="form-control" id="taskStatus" ng-model="taskStatus" ng-options="status for status in tasksStatusesInfo"></select>
+                            <select class="form-control" id="taskStatus" ng-model="task.status" ng-options="status for status in tasksStatusesInfo"></select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="taskDetails" class="col-sm-2 control-label">Details</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="taskDetails"></textarea>
+                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="task.details"></textarea>
                         </div>
                     </div>
                 </form>
