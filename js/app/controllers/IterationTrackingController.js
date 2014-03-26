@@ -8,8 +8,17 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     $scope.users = [];
     $scope.unsaved = false;
     $scope.saving = false;
-    $scope.taskStatus = $scope.tasksStatusesInfo[0];
+    $scope.task = {};
     $scope.newTaskModal = $('#new-task-modal');
+
+    var newTask = function() {
+        $scope.task = {
+            status: $scope.tasksStatusesInfo[0],
+            details: ''
+        };
+    };
+
+    newTask();
 
     Google.login().then(function() {
         Flow.on(function() {
@@ -73,19 +82,9 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
 
     $scope.createTask = function() {
         $scope.unsaved = true;
-        $scope.activeStory.tasks.push({
-            id: 'T-' + ($scope.activeStory.tasks.length + 1),
-            title: $scope.taskTitle,
-            estimate: $scope.taskEstimate,
-            owner: $scope.taskOwner,
-            status: $scope.taskStatus,
-            details: typeof $scope.taskDetails === 'undefined' ? '' : $scope.taskDetails
-        });
-        $scope.taskTitle = '';
-        $scope.taskEstimate = '';
-        $scope.taskOwner = '';
-        $scope.taskStatus = $scope.tasksStatusesInfo[0];
-        $scope.taskDetails = '';
+        $scope.task.id = 'T-' + ($scope.activeStory.tasks.length + 1);
+        $scope.activeStory.tasks.push(JSON.parse(JSON.stringify($scope.task)));
+        newTask();
         $scope.newTaskModal.modal('hide');
         //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
