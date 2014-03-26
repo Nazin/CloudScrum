@@ -29,18 +29,19 @@ cloudScrum.controller('StoryBoardController', function StoryBoardController($sco
         items: '.story'
     };
 
-    $scope.loadIterationCallback = function(iteration) {
-        updateIteration(iteration);
+    $scope.loadIterationCallback = function(iteration, iterations) {
+        updateIteration(iteration, iterations);
     };
 
-    $scope.loadReleaseCallback = function(iteration, users) {
+    $scope.loadReleaseCallback = function(iteration, iterations, users) {
         $scope.users = users;
-        updateIteration(iteration);
+        updateIteration(iteration, iterations);
     };
 
-    var updateIteration = function(iteration) {
+    var updateIteration = function(iteration, iterations) {
 
         $scope.iteration = iteration;
+        $scope.iterations = iterations;
 
         $scope.statuses = [];
 

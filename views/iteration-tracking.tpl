@@ -83,7 +83,7 @@
             <tr class="task" ng-repeat="task in story.tasks">
                 <td colspan="3"></td>
                 <td ng-bs-popover>
-                    <a href="" ng-click="showTaskDetails(task)" class="popover-toggle" data-container="body" data-trigger="hover" data-placement="bottom" data-content="{{task.details ? task.details : ' '}}">{{task.title}}</a>
+                    <a href="" ng-click="setStory(story);showTaskDetails(task)" class="popover-toggle" data-container="body" data-trigger="hover" data-placement="bottom" data-content="{{task.details ? task.details : ' '}}">{{task.title}}</a>
                 </td>
                 <td>
                     <div class="form-group">
@@ -100,7 +100,7 @@
                 <td>{{task.estimate}} h</td>
                 <td>
                     <div class="form-group">
-                        <input type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-change="updateEffort(story)" ng-readonly="iteration.closed" /> h
+                        <input type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-change="updateEffort(story);edit();" required ng-readonly="iteration.closed" /> h
                     </div>
                 </td>
             </tr>
@@ -159,6 +159,68 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" ng-disabled="newTaskForm.$invalid" ng-click="createTask()">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-disabled="editForm.$invalid">&times;</button>
+                <h4 class="modal-title">{{editItemStory ? 'Story' : 'Task'}} details</h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" class="form-horizontal" name="editForm" ng-submit="editForm.$valid && saveEditedItem()" novalidate>
+                    <div class="form-group">
+                        <label for="editItemTitle" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="editItemTitle" ng-model="editItem.title" ng-change="edit()" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editItemEstimate" class="col-sm-2 control-label">Estimate</label>
+                        <div class="col-xs-3">
+                            <input type="number" ng-min="1" min="1" class="form-control" id="editItemEstimate" ng-model="editItem.estimate" ng-change="edit();updateStoryPoints();" required>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-if="!editItemStory">
+                        <label for="editItemEffort" class="col-sm-2 control-label">Effort</label>
+                        <div class="col-xs-3">
+                            <input type="number" ng-min="0" min="0" class="form-control" id="editItemEffort" ng-model="editItem.effort" ng-change="updateEffort(activeStory);edit()" required>
+                        </div>
+                    </div>
+                    <div class="form-group" ng-if="editItemStory">
+                        <label for="editItemEpic" class="col-sm-2 control-label">Epic</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="editItemEpic" ng-model="editItem.epic" ng-change="edit()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editItemOwner" class="col-sm-2 control-label">Owner</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="editItemOwner" ng-model="editItem.owner" ng-change="edit()" ng-options="user.emailAddress as user.name for user in users">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editItemStatus" class="col-sm-2 control-label">Status</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="editItemStatus" ng-model="editItem.status" ng-change="edit();updateStoryPoints();" ng-options="status for status in editItemStatuses"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editItemDetails" class="col-sm-2 control-label">Details</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" id="editItemDetails" ng-model="editItem.details" ng-change="edit()"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-disabled="editForm.$invalid" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

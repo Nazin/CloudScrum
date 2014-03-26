@@ -10,12 +10,18 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     $scope.saving = false;
     $scope.task = {};
     $scope.newTaskModal = $('#new-task-modal');
+    $scope.editModal = $('#edit-modal');
 
     var newTask = function() {
         $scope.task = {
             status: $scope.tasksStatusesInfo[0],
-            details: ''
+            details: '',
+            effort: 0
         };
+    };
+
+    var showEditForm = function() {
+        $scope.editModal.modal('show');
     };
 
     newTask();
@@ -89,26 +95,40 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
 
+    $scope.saveEditedItem = function() {
+        $scope.editModal.modal('hide');
+    };
+
     $scope.showStoryDetails = function(story) {
-        console.log(story);
-        alert('display story popup');
+        $scope.editItem = story;
+        $scope.editItemStory = true;
+        $scope.editItemStatuses = $scope.storiesStatusesInfo;
+        showEditForm();
     };
 
     $scope.showTaskDetails = function(task) {
-        console.log(task);
-        alert('display task popup');
+        $scope.editItem = task;
+        $scope.editItemStory = false;
+        $scope.editItemStatuses = $scope.tasksStatusesInfo;
+        showEditForm();
     };
 
     $scope.edit = function() {
         $scope.unsaved = true;
+        //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
 
-    $scope.loadIterationCallback = function(iteration) {
-        $scope.iteration = iteration;
+    $scope.updateStoryPoints = function() {
+        $scope.$broadcast('UPDATE_STORY_POINTS', {});
     };
 
-    $scope.loadReleaseCallback = function(iteration, users) {
+    $scope.loadIterationCallback = function(iteration, iterations) {
         $scope.iteration = iteration;
+        $scope.iterations = iterations;
+    };
+
+    $scope.loadReleaseCallback = function(iteration, iterations, users) {
+        $scope.loadIterationCallback(iteration, iterations);
         $scope.users = users;
         $scope.unsaved = false;
     };

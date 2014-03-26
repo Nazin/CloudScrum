@@ -18,6 +18,10 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         });
     });
 
+    $scope.$on('UPDATE_STORY_POINTS', function() {
+        $scope.updateStoryPoints();
+    });
+
     $scope.changeRelease = function() {
 
         if ($scope.unsaved && !confirm('There are some unsaved changes which you will lost! Do you really want to change the release?')) {
@@ -46,7 +50,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         $scope.storyPointsAccepted = accepted;
         $scope.percentCompleted = ($scope.storyPointsAccepted/$scope.storyPointsEstimated)*100;
 
-        $scope.loadIterationCallback($scope.iteration);
+        $scope.loadIterationCallback($scope.iteration, $scope.iterations);
     };
 
     var loadRelease = function(id) {
@@ -70,7 +74,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
             $scope.release = $scope.releases[id];
             oldReleaseSelected = $scope.release;
 
-            $scope.loadReleaseCallback($scope.iteration, $scope.users);
+            $scope.loadReleaseCallback($scope.iteration, $scope.iterations, $scope.users);
         }, function(error) {
             alert('handle error: ' + error); //todo handle error
         }).finally(function() {
