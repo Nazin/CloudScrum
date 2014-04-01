@@ -93,25 +93,25 @@
                     <div class="form-group">
                         <label for="storyTitle" class="col-sm-2 control-label">Title</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="storyTitle" ng-model="storyTitle" required>
+                            <input type="text" class="form-control" id="storyTitle" ng-model="story.title" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="storyEstimate" class="col-sm-2 control-label">Estimate</label>
                         <div class="col-xs-3">
-                            <input type="number" min="1" class="form-control" id="storyEstimate" ng-model="storyEstimate" required>
+                            <input type="number" min="1" class="form-control" id="storyEstimate" ng-model="story.estimate" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="storyEpic" class="col-sm-2 control-label">Epic</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="storyEpic" ng-model="storyEpic">
+                            <input type="text" class="form-control" id="storyEpic" ng-model="story.epic">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="storyDetails" class="col-sm-2 control-label">Details</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" rows="3" id="storyDetails" ng-model="storyDetails"></textarea>
+                            <textarea class="form-control" rows="3" id="storyDetails" ng-model="story.details"></textarea>
                         </div>
                     </div>
                 </form>
@@ -136,19 +136,19 @@
                     <div class="form-group">
                         <label for="taskTitle" class="col-sm-2 control-label">Title</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="taskTitle" ng-model="taskTitle" required>
+                            <input type="text" class="form-control" id="taskTitle" ng-model="task.title" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="taskEstimate" class="col-sm-2 control-label">Estimate</label>
                         <div class="col-xs-3">
-                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="taskEstimate" required>
+                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="task.estimate" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="taskDetails" class="col-sm-2 control-label">Details</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="taskDetails"></textarea>
+                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="task.details"></textarea>
                         </div>
                     </div>
                 </form>

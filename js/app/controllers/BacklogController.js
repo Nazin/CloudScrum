@@ -22,6 +22,23 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
         });
     });
 
+    var newTask = function() {
+        $scope.task = {
+            details: ''
+        };
+    };
+
+    var newStory = function() {
+        $scope.story = {
+            details: '',
+            epic: '',
+            tasks: []
+        };
+    };
+
+    newTask();
+    newStory();
+
     $scope.planning = false;
     $scope.unsaved = false;
     $scope.saving = false;
@@ -69,18 +86,9 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
 
     $scope.createStory = function() {
         $scope.unsaved = true;
-        $scope.stories.push({
-            id: 'S-' + ($scope.nextStoryId++),
-            title: $scope.storyTitle,
-            epic: typeof $scope.storyEpic === 'undefined' ? '' : $scope.storyEpic,
-            estimate: $scope.storyEstimate,
-            details: typeof $scope.storyDetails === 'undefined' ? '' : $scope.storyDetails,
-            tasks: []
-        });
-        $scope.storyTitle = '';
-        $scope.storyEpic = '';
-        $scope.storyEstimate = '';
-        $scope.storyDetails = '';
+        $scope.story.id = 'S-' + ($scope.nextStoryId++);
+        $scope.stories.push(JSON.parse(JSON.stringify($scope.story)));
+        newStory();
         $scope.newStoryModal.modal('hide');
         //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
@@ -91,15 +99,9 @@ cloudScrum.controller('BacklogController', function BacklogController($scope, $r
 
     $scope.createTask = function() {
         $scope.unsaved = true;
-        $scope.activeStory.tasks.push({
-            id: 'T-' + ($scope.activeStory.tasks.length+1),
-            title: $scope.taskTitle,
-            estimate: $scope.taskEstimate,
-            details: typeof $scope.taskDetails === 'undefined' ? '' : $scope.taskDetails
-        });
-        $scope.taskTitle = '';
-        $scope.taskEstimate = '';
-        $scope.taskDetails = '';
+        $scope.task.id = 'T-' + ($scope.activeStory.tasks.length + 1);
+        $scope.activeStory.tasks.push(JSON.parse(JSON.stringify($scope.task)));
+        newTask();
         $scope.newTaskModal.modal('hide');
         //TODO save timeout (10s?) + ng-disabled on save button (when saving)
     };
