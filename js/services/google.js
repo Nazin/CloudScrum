@@ -5,6 +5,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
     var clientId = '641738097836.apps.googleusercontent.com',
         apiKey = 'AIzaSyBduR27RDdEu6gN5ggwi6JFdqANv_xFpLk',
         scopes = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://spreadsheets.google.com/feeds/',
+        oldSpreadsheetId = '0AoueeG57xFRRdFNDMl9lQ0JrQVMwQVc2STFxSVpRdUE',
         timeoutTime = 10000,
         isAuthorized = false,
         deferred = $q.defer(),
@@ -347,11 +348,20 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                 ];
             }
 
-            gapi.client.drive.files.insert({resource: data}).execute(function(file) {
-                deferred2.resolve(file);
-                $timeout.cancel(timeoutPromise);
-                $rootScope.$apply();
-            });
+            // temporary solution - create old sheet (copy existing old sheet)
+            if (mimeType === 'application/vnd.google-apps.spreadsheet') {
+                gapi.client.drive.files.copy({fileId: oldSpreadsheetId, resource: data}).execute(function(file) {
+                    deferred2.resolve(file);
+                    $timeout.cancel(timeoutPromise);
+                    $rootScope.$apply();
+                });
+            } else {
+                gapi.client.drive.files.insert({resource: data}).execute(function(file) {
+                    deferred2.resolve(file);
+                    $timeout.cancel(timeoutPromise);
+                    $rootScope.$apply();
+                });
+            }
         });
 
         return deferred2.promise;
