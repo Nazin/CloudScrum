@@ -842,7 +842,7 @@ function parseCXfs(t) {
 			case '</xf>': break;
 
 			/* 18.8.1 alignment CT_CellAlignment */
-			case '<alignment': break;
+			case '<alignment': case '<alignment/>': break;
 
 			/* 18.8.33 protection CT_CellProtection */
 			case '<protection': case '</protection>': case '<protection/>': break;

@@ -283,9 +283,9 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
         require(['xlsx'], function(XLSX) {
 
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://docs.google.com/feeds/download/spreadsheets/Export?key=' + id + '&exportFormat=xlsx');
+            xhr.open('POST', 'http://37.59.14.211/proxy');
             xhr.responseType = 'arraybuffer';
-            xhr.setRequestHeader('Authorization', 'Bearer ' + gapi.auth.getToken().access_token);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
             xhr.onload = function() {
 
@@ -312,7 +312,7 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                 $timeout.cancel(timeoutPromise);
             };
 
-            xhr.send();
+            xhr.send('id=' + id + '&token=' + gapi.auth.getToken().access_token);
         });
 
         return deferred2.promise;
@@ -348,20 +348,11 @@ cloudScrum.service('Google', function Google($location, $rootScope, $q, $timeout
                 ];
             }
 
-            // temporary solution - create old sheet (copy existing old sheet)
-            if (mimeType === 'application/vnd.google-apps.spreadsheet') {
-                gapi.client.drive.files.copy({fileId: oldSpreadsheetId, resource: data}).execute(function(file) {
-                    deferred2.resolve(file);
-                    $timeout.cancel(timeoutPromise);
-                    $rootScope.$apply();
-                });
-            } else {
-                gapi.client.drive.files.insert({resource: data}).execute(function(file) {
-                    deferred2.resolve(file);
-                    $timeout.cancel(timeoutPromise);
-                    $rootScope.$apply();
-                });
-            }
+            gapi.client.drive.files.insert({resource: data}).execute(function(file) {
+                deferred2.resolve(file);
+                $timeout.cancel(timeoutPromise);
+                $rootScope.$apply();
+            });
         });
 
         return deferred2.promise;
