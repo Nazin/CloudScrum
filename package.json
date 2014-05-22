@@ -1,0 +1,10 @@
+{
+    "name"         : "CloudScrum",
+    "version"      : "0.0.1",
+    "main"         : "server.js",
+    "author"       : "Piotr Niziniecki",
+    "dependencies" : {
+        "express"    : "~4.3.0",
+        "body-parser": "~1.0.0"
+    }
+}
