@@ -1,65 +1,40 @@
 'use strict';
 
-function isEmpty(value) {
-    return angular.isUndefined(value) || value === '' || value === null || value !== value;
-}
-
-cloudScrum.directive('ngMin', function() {
+cloudScrum.directive('ngValueChange', function($parse) {
     return {
         restrict: 'A',
         require: 'ngModel',
-        link: function(scope, elem, attr, ctrl) {
+        compile: function($element, attr) {
 
-            scope.$watch(attr.ngMin, function() {
-                ctrl.$setViewValue(ctrl.$viewValue);
-            });
+            var fn = $parse(attr['ngValueChange']);
 
-            var minValidator = function(value) {
-                var min = scope.$eval(attr.ngMin) || 0;
-                if (!isEmpty(value) && value < min) {
-                    ctrl.$setValidity('ngMin', false);
-                    return undefined;
-                } else {
-                    ctrl.$setValidity('ngMin', true);
-                    return value;
-                }
+            return function(scope, element, attr) {
+
+                element.on('focus', function() {
+
+                    scope.oldValue = element.val();
+
+                    if (attr['type'] && attr['type'] === 'number') {
+                        scope.oldValue = parseInt(scope.oldValue);
+                    }
+                });
+
+                element.on('blur', function() {
+
+                    var newValue = element.val();
+                    if (attr['type'] && attr['type'] === 'number') {
+                        newValue = parseInt(newValue);
+                    }
+
+                    if (newValue !== scope.oldValue) {
+                        scope.$apply(function() {
+                            fn(scope, {$event: event, $field: attr['name'], $value: newValue});
+                        });
+                    }
+                })
             };
-
-            ctrl.$parsers.push(minValidator);
-            ctrl.$formatters.push(minValidator);
         }
     };
 });
 
-cloudScrum.directive('ngMax', function() {
-    return {
-        restrict: 'A',
-        require: 'ngModel',
-        link: function(scope, elem, attr, ctrl) {
 
-            scope.$watch(attr.ngMax, function() {
-                ctrl.$setViewValue(ctrl.$viewValue);
-            });
-
-            var maxValidator = function(value) {
-                var max = scope.$eval(attr.ngMax) || Infinity;
-                if (!isEmpty(value) && value > max) {
-                    ctrl.$setValidity('ngMax', false);
-                    return undefined;
-                } else {
-                    ctrl.$setValidity('ngMax', true);
-                    return value;
-                }
-            };
-
-            ctrl.$parsers.push(maxValidator);
-            ctrl.$formatters.push(maxValidator);
-        }
-    };
-});
-
-cloudScrum.directive('ngBsPopover', function() {
-    return function(scope, element) {
-        element.find('a.popover-toggle').popover();
-    };
-});

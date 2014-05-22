@@ -36,6 +36,10 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope) {
         return $localStorage.cloudScrumActiveProject;
     };
 
+    self.getActiveProjectInfo = function() {
+        return self.getProjects()[$localStorage.cloudScrumActiveProject];
+    };
+
     self.setActiveProject = function(id) {
         $rootScope.activeProject = $localStorage.cloudScrumActiveProject = id || 0;
     };

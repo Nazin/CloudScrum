@@ -8,6 +8,7 @@ app.use(bodyParser());
 
 app.use('/', require('./routes/index'));
 app.use('/projects', require('./routes/projects'));
+app.use('/backlog', require('./routes/backlog'));
 
 app.listen(process.env.PORT || 1337);
 

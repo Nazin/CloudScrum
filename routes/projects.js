@@ -14,22 +14,20 @@ router.post('/', function(req, res) {
     }
 
     var projectFile = path.join(req.body.path, 'cloudscrum.project'),
-        usersDir = path.join(req.body.path, 'users'),
-        backlogDir = path.join(req.body.path, 'backlog'),
-        releasesDir = path.join(req.body.path, 'releases');
+        usersDir = path.join(req.body.path, helper.USERS_DIR);
 
     fs.exists(projectFile, function(exists) {
         if (!exists) {
-            fs.writeFile(projectFile, req.body.name);
+            fs.writeFile(projectFile, req.body.name, helper.ENCODING);
         }
     });
 
     helper.createDir(usersDir, function() {
-        fs.writeFile(path.join(usersDir, req.body.user.email), req.body.user.name);
+        fs.writeFile(path.join(usersDir, req.body.user.email), req.body.user.name, helper.ENCODING);
     });
 
-    helper.createDir(backlogDir);
-    helper.createDir(releasesDir);
+    helper.createDir(path.join(req.body.path, helper.BACKLOG_DIR));
+    helper.createDir(path.join(req.body.path, helper.RELEASES_DIR));
 
     res.json(helper.prepareSuccessResponse());
 });

@@ -2,6 +2,12 @@ var fs = require('fs');
 
 module.exports = {
 
+    USERS_DIR: 'users',
+    BACKLOG_DIR: 'backlog',
+    RELEASES_DIR: 'releases',
+
+    ENCODING: 'utf8',
+
     prepareErrorResponse: function(message) {
         return {status: 'error', message: message};
     },
@@ -19,5 +25,9 @@ module.exports = {
                 allwaysCallback();
             }
         });
+    },
+
+    prepareForSave: function(data) {
+        return JSON.stringify(data, null, '\t');
     }
 };

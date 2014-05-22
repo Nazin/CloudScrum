@@ -16,7 +16,7 @@ $.fn.extend({
 
         this.data('blocked', true);
 
-        var elements = this.find('input');
+        var elements = this.find('input, textarea');
         elements.prop('disabled', true);
 
         var submit = this.find('[type=submit]');
@@ -29,7 +29,7 @@ $.fn.extend({
 
         this.removeData('blocked');
 
-        var elements = this.find('input');
+        var elements = this.find('input, textarea');
         elements.prop('disabled', false);
 
         var submit = this.find('[type=submit]');
