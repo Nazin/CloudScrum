@@ -46,12 +46,18 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     $scope.updateStory = function(field, value, id, event) {
-        if ($scope.editStoryForm.$valid) {
-            $http.put('/backlog/' + id, { field: field, value: value, project: Flow.getActiveProjectInfo() }).success(function(response) {
 
+        if ($scope.editStoryForm.$valid) {
+
+            var element = $(event.target);
+
+            if (!element.blockElement()) {
+                return;
+            }
+
+            $http.put('/backlog/' + id, { field: field, value: value, project: Flow.getActiveProjectInfo() }).success(function() {
+                element.unblockElement();
             });
-            //TODO event pobranie target elementu, dolozenie disabled i loadingu z boku
-            console.log(field, value, id, event);
         }
     };
 });

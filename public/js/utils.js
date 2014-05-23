@@ -34,5 +34,20 @@ $.fn.extend({
 
         var submit = this.find('[type=submit]');
         submit.button('reset');
+    },
+
+    blockElement: function() {
+
+        if (this.prop('disabled')) {
+            return false;
+        }
+
+        this.prop('disabled', true);
+
+        return true;
+    },
+
+    unblockElement: function() {
+        this.prop('disabled', false);
     }
 });
