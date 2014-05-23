@@ -11,6 +11,8 @@ module.exports = {
     ITERATION_INFO_FILE: 'info.json',
     ACTIVE_ITERATION_FILE: 'active-iteration',
 
+    STORY_SUFFIX: '.story.json',
+
     ENCODING: 'utf8',
 
     prepareErrorResponse: function(message) {

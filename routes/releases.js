@@ -31,7 +31,7 @@ router.post('/', function(req, res) {
                 fs.mkdir(iterationDir, function() {
 
                     for (var j = 0, lj = iterationData.stories.length; j < lj; j++) {
-                        var storyFileName = iterationData.stories[j] + '.json';
+                        var storyFileName = iterationData.stories[j] + helper.STORY_SUFFIX;
                         fs.rename(path.join(backlogDir, storyFileName), path.join(iterationDir, storyFileName), function() {
                             if (++storiesMoved === allStories) {
                                 res.json(helper.prepareSuccessResponse());
