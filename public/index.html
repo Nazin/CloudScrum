@@ -49,6 +49,8 @@
             <h1 ng-bind="title">CloudScrum</h1>
         </div>
 
+        <div class="alert alert-danger fade" ng-class="{ in: error !== '' }" ng-show="error !== ''">{{ error }}</div>
+
         <div ng-view></div>
     </div>
 
@@ -90,6 +92,7 @@
 
     <script src="js/libs/jquery/jquery-2.1.1.js"></script>
     <script src="js/libs/jquery/jquery-ui-1.10.4.custom.js"></script>
+    <script src="js/libs/moment/moment.js"></script>
     <script src="js/libs/bootstrap/bootstrap.js"></script>
     <script src="js/libs/angular/angular.js"></script>
     <script src="js/libs/angular/angular-route.js"></script>

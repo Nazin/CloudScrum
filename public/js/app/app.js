@@ -31,6 +31,7 @@ cloudScrum.run(function($rootScope, Flow, $location, $http) {
     $rootScope.activeProject = Flow.getActiveProject();
     $rootScope.newProjectModal = $('#new-project-modal');
     $rootScope.projectCreationError = '';
+    $rootScope.error = '';
 
     if (!Flow.isInitialized() && $location.$$path !== '/init') {
         $location.path('/init');

@@ -1,6 +1,12 @@
 <p class="clearfix buttons-nav">
-    <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#new-story-modal">Add new</button>
+    <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#new-story-modal" ng-show="!planning">Add new</button>
     <button type="button" class="btn pull-right" ng-click="sortable = !sortable" ng-show="stories.length !== 0 && !planning" ng-class="{ 'btn-info': !sortable, 'btn-success': sortable }">Sort</button>
+    <button type="button" class="btn btn-info pull-right" ng-disabled="sortable" ng-click="planRelease()" ng-show="stories.length !== 0 && !planning">Plan release</button>
+
+    <button type="button" class="btn btn-danger pull-right" ng-show="planning" ng-click="cancelPlanning()">Cancel</button>
+    <button type="button" class="btn btn-warning pull-right" ng-show="planning" ng-disabled="iterations === 1" ng-click="removeLastIteration()">Remove iteration</button>
+    <button type="button" class="btn btn-info pull-right" ng-show="planning" ng-click="addIteration()">Add iteration</button>
+    <button type="button" class="btn btn-info pull-right" ng-show="planning" ng-click="saveRelease()">Save release</button>
 </p>
 
 <div class="backlog-stories" ng-class="{ active: planning }">
@@ -148,6 +154,44 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid" ng-click="saveTask()">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="new-release-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" class="form-horizontal" name="newReleaseForm" novalidate>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">New release</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="releaseName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="releaseName" ng-model="release.name" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="releaseStartDate" class="col-sm-2 control-label">Start date</label>
+                        <div class="col-sm-10">
+                            <input type="date" min="{{ release.minDate }}" max="{{ release.maxDate }}" class="form-control" id="releaseStartDate" ng-min="release.minDate" ng-max="release.maxDate" ng-model="release.startDate" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="iterationLength" class="col-sm-2 control-label">Iteration length</label>
+                        <div class="col-xs-3">
+                            <input type="number" min="1" class="form-control" id="iterationLength" ng-model="release.iterationLength" required />
+                            <span class="help-block">Days</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="newReleaseForm.$invalid" ng-click="createRelease()">Add</button>
                 </div>
             </form>
         </div>

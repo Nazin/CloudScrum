@@ -4,11 +4,22 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
 
     $rootScope.selectProject();
 
+    $scope.planning = false;
     $scope.sortable = false;
 
+    $scope.iterations = 0;
     $scope.stories = [];
+
     $scope.newStoryModal = $('#new-story-modal');
     $scope.newTaskModal = $('#new-task-modal');
+    $scope.newReleaseModal = $('#new-release-modal');
+
+    $scope.release = {
+        iterationLength: 14,
+        startDate: moment().add('days', 1).format('YYYY-MM-DD'),
+        minDate: moment().format('YYYY-MM-DD'),
+        maxDate: moment().add('years', 2).format('YYYY-MM-DD')
+    };
 
     $http.get('/backlog', { params: { path: Flow.getActiveProjectInfo().path } }).success(function(response) {
         $scope.stories = response;
@@ -110,25 +121,103 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
         $scope.activeStory = story;
     };
 
+    $scope.planRelease = function() {
+        $scope.planning = true;
+        $scope.stories.unshift({ruler: true, points: 0, iteration: 1});
+        $scope.iterations = 1;
+    };
+
+    $scope.cancelPlanning = function() {
+        if (confirm('Are you sure?')) {//TODO maybe some nicer confirm (not js default)
+            $rootScope.error = '';
+            $scope.planning = false;
+            $scope.iterations = 0;
+            for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+                if (typeof $scope.stories[i].ruler !== 'undefined') {
+                    $scope.stories.splice(i, 1);
+                }
+            }
+        }
+    };
+
+    $scope.addIteration = function() {
+        for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+            if (typeof $scope.stories[i].ruler !== 'undefined') {
+                var points = typeof $scope.stories[i+1] !== 'undefined' && typeof $scope.stories[i+1].ruler === 'undefined' ? $scope.stories[i+1].estimate : 0;
+                $scope.stories.splice(i+2, 0, {ruler: true, points: points, iteration: $scope.stories[i].iteration+1});
+                $scope.iterations++;
+                break;
+            }
+        }
+    };
+
+    $scope.removeLastIteration = function() {
+        for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+            if (typeof $scope.stories[i].ruler !== 'undefined') {
+                $scope.stories.splice(i, 1);
+                $scope.iterations--;
+                break;
+            }
+        }
+    };
+
+    $scope.saveRelease = function() {
+
+        $rootScope.error = '';
+
+        for (var i = 0, l = $scope.stories.length; i < l; i++) {
+            if (typeof $scope.stories[i].ruler !== 'undefined') {
+                if ($scope.stories[i].points === 0) {
+                    $rootScope.error = 'Some of your iterations are empty!';
+                    break;
+                }
+            }
+        }
+
+        if ($rootScope.error === '') {
+            $scope.newReleaseModal.modal('show');
+        }
+    };
+
+    $scope.createRelease = function() {
+        console.log('todo');//TODO API call
+    };
+
     var orderChanged = false, oldPositions;
 
     $scope.sortableOptions = {
         start: function() {
             orderChanged = false;
-            oldPositions = {};
-            for (var i = 0, l = $scope.stories.length; i < l; i++) {
-                oldPositions[$scope.stories[i].id] = i;
+            if (!$scope.planning) {
+                oldPositions = {};
+                for (var i = 0, l = $scope.stories.length; i < l; i++) {
+                    oldPositions[$scope.stories[i].id] = i;
+                }
             }
         },
         stop: function() {
             if (orderChanged) {
-                var positions = {};
-                for (var i = 0, l = $scope.stories.length; i < l; i++) {
-                    if (oldPositions[$scope.stories[i].id] !== i) {
-                        positions[$scope.stories[i].id] = i;
+                var i = 0, l = $scope.stories.length;
+                if (!$scope.planning) {
+                    var positions = {};
+                    for (i = 0; i < l; i++) {
+                        if (oldPositions[$scope.stories[i].id] !== i) {
+                            positions[$scope.stories[i].id] = i;
+                        }
+                    }
+                    $http.put('/backlog/order', { positions: positions, project: Flow.getActiveProjectInfo() }).success(function() {});
+                } else {
+                    var sp = 0, it = 1;
+                    for (i = 0; i < l; i++) {
+                        if (typeof $scope.stories[i].ruler === 'undefined') {
+                            sp += $scope.stories[i].estimate;
+                        } else {
+                            $scope.stories[i].points = sp;
+                            $scope.stories[i].iteration = it++;
+                            sp = 0;
+                        }
                     }
                 }
-                $http.put('/backlog/order', { positions: positions, project: Flow.getActiveProjectInfo() }).success(function() {});
             }
         },
         update: function() {
