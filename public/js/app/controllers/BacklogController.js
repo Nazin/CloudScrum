@@ -88,6 +88,22 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
         });
     };
 
+    $scope.updateTask = function(field, value, id, tid, event) {
+
+        if ($scope.editStoryForm.$valid) {
+
+            var element = $(event.target);
+
+            if (!element.blockElement()) {
+                return;
+            }
+
+            $http.put('/backlog/' + id + '/tasks/' + tid, { field: field, value: value, project: Flow.getActiveProjectInfo() }).success(function() {
+                element.unblockElement();
+            });
+        }
+    };
+
     $scope.setStory = function(story) {
         $scope.activeStory = story;
     };

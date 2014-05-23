@@ -62,27 +62,21 @@ router.post('/', function(req, res) {
 });
 
 router.put('/:id', function(req, res) {
-
-    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR), storyFile = path.join(backlogDir, req.params.id + '.json');
-
-    var data = JSON.parse(fs.readFileSync(storyFile, helper.ENCODING));
-    data[req.body.field] = req.body.value;
-
-    fs.writeFileSync(storyFile, helper.prepareForSave(data), helper.ENCODING);
-
-    res.json(helper.prepareSuccessResponse());
+    helper.editBacklogStory(req, res, function(story) {
+        story[req.body.field] = req.body.value;
+    });
 });
 
 router.post('/:id/tasks', function(req, res) {
+    helper.editBacklogStory(req, res, function(story) {
+        story.tasks.push(req.body.task);
+    });
+});
 
-    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR), storyFile = path.join(backlogDir, req.params.id + '.json');
-
-    var data = JSON.parse(fs.readFileSync(storyFile, helper.ENCODING));
-    data.tasks.push(req.body.task);
-
-    fs.writeFileSync(storyFile, helper.prepareForSave(data), helper.ENCODING);
-
-    res.json(helper.prepareSuccessResponse());
+router.put('/:id/tasks/:tid', function(req, res) {
+    helper.editBacklogStory(req, res, function(story) {
+        story.tasks[req.params.tid][req.body.field] = req.body.value;
+    });
 });
 
 module.exports = router;

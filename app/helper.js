@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('fs'),
+    path = require('path');
 
 module.exports = {
 
@@ -29,5 +30,17 @@ module.exports = {
 
     prepareForSave: function(data) {
         return JSON.stringify(data, null, '\t');
+    },
+
+    editBacklogStory: function(req, res, callback) {
+
+        var backlogDir = path.join(req.body.project.path, this.BACKLOG_DIR), storyFile = path.join(backlogDir, req.params.id + '.json');
+        var story = JSON.parse(fs.readFileSync(storyFile, this.ENCODING));
+
+        callback(story);
+
+        fs.writeFileSync(storyFile, this.prepareForSave(story), this.ENCODING);
+
+        res.json(this.prepareSuccessResponse());
     }
 };
