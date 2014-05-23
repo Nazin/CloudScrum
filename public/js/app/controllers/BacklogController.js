@@ -133,7 +133,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
             $rootScope.error = '';
             $scope.planning = false;
             $scope.iterations = 0;
-            for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+            for (var i = $scope.stories.length - 1; i >= 0; i--) {
                 if (typeof $scope.stories[i].ruler !== 'undefined') {
                     $scope.stories.splice(i, 1);
                 }
@@ -142,10 +142,10 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     $scope.addIteration = function() {
-        for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+        for (var i = $scope.stories.length - 1; i >= 0; i--) {
             if (typeof $scope.stories[i].ruler !== 'undefined') {
-                var points = typeof $scope.stories[i+1] !== 'undefined' && typeof $scope.stories[i+1].ruler === 'undefined' ? $scope.stories[i+1].estimate : 0;
-                $scope.stories.splice(i+2, 0, {ruler: true, points: points, iteration: $scope.stories[i].iteration+1});
+                var points = typeof $scope.stories[i + 1] !== 'undefined' && typeof $scope.stories[i + 1].ruler === 'undefined' ? $scope.stories[i + 1].estimate : 0;
+                $scope.stories.splice(i + 2, 0, {ruler: true, points: points, iteration: $scope.stories[i].iteration + 1});
                 $scope.iterations++;
                 break;
             }
@@ -153,7 +153,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     $scope.removeLastIteration = function() {
-        for (var i = $scope.stories.length-1; i >= 0 ; i--) {
+        for (var i = $scope.stories.length - 1; i >= 0; i--) {
             if (typeof $scope.stories[i].ruler !== 'undefined') {
                 $scope.stories.splice(i, 1);
                 $scope.iterations--;
@@ -196,8 +196,8 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
                 iterations.push({
                     closed: false,
                     stories: stories.slice(0),
-                    startDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration-1)).format('YYYY-MM-DD'),
-                    endDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration++)).format('YYYY-MM-DD')
+                    startDate: moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration - 1)).format('YYYY-MM-DD'),
+                    endDate: moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration++)).format('YYYY-MM-DD')
                 });
                 stories = [];
             }

@@ -62,6 +62,18 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope) {
 
     self.setActiveRelease = function(name, iteration) {
         $localStorage.cloudScrumActiveRelease = name;
+        self.setActiveIteration(iteration);
+    };
+
+    self.setActiveIteration = function(iteration) {
         $localStorage.cloudScrumActiveIteration = iteration || 1;
-    }
+    };
+
+    self.getActiveRelease = function() {
+        return $localStorage.cloudScrumActiveRelease;
+    };
+
+    self.getActiveIteration = function() {
+        return $localStorage.cloudScrumActiveIteration;
+    };
 });

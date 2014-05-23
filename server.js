@@ -10,6 +10,7 @@ app.use('/', require('./routes/index'));
 app.use('/projects', require('./routes/projects'));
 app.use('/backlog', require('./routes/backlog'));
 app.use('/releases', require('./routes/releases'));
+app.use('/iteration', require('./routes/iteration'));
 
 app.listen(process.env.PORT || 1337);
 

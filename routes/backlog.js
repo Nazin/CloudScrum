@@ -6,40 +6,18 @@ var express = require('express'),
 
 router.get('/', function(req, res) {
 
-    var backlogDir = path.join(req.query.path, helper.BACKLOG_DIR);
+    var backlogDir = path.join(req.query.path, helper.BACKLOG_DIR), files = fs.readdirSync(backlogDir), stories = [], totalFiles = files.length;
 
-    var files = fs.readdirSync(backlogDir), stories = [], filesRead = 0, totalFiles = files.length, i, l;
-
-    for (i = files.length-1; i >= 0 ; i--) {
+    for (var i = files.length - 1; i >= 0; i--) {
         if (files[i].slice(-helper.STORY_SUFFIX.length) !== helper.STORY_SUFFIX) {
             files.splice(i, 1);
             totalFiles--;
         }
     }
 
-    for (i = 0, l = files.length; i < l; i++) {
-
-        (function(fileName) {
-
-            fs.readFile(path.join(backlogDir, fileName), helper.ENCODING, function(error, data) {
-
-                try {
-                    stories.push(JSON.parse(data));
-                } catch (err) {
-                    console.log('Story: ' + helper.BACKLOG_DIR + '/' + fileName + ' corrupted!');
-                }
-
-                if (++filesRead === totalFiles) {
-
-                    stories.sort(function(a, b) {
-                        return a.position - b.position;
-                    });
-
-                    res.json(stories);
-                }
-            });
-        })(files[i]);
-    }
+    helper.readStories(files, backlogDir, function(stories) {
+        res.json(stories);
+    });
 
     if (totalFiles === 0) {
         res.json(stories);

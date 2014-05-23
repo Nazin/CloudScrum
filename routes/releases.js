@@ -4,6 +4,34 @@ var express = require('express'),
     path = require('path'),
     router = express.Router();
 
+router.get('/', function(req, res) {
+
+    var releasesDir = path.join(req.query.path, helper.RELEASES_DIR), files = fs.readdirSync(releasesDir), totalFiles = files.length, filesStated = 0, releases = {};
+
+    for (var i = 0, l = files.length; i < l; i++) {
+
+        (function(fileName) {
+
+            var file = path.join(releasesDir, fileName);
+
+            fs.stat(file, function(err, stat) {
+
+                if (stat && stat.isDirectory()) {
+                    releases[fileName] = JSON.parse(fs.readFileSync(path.join(file, helper.RELEASE_STATUS_FILE)));
+                }
+
+                if (++filesStated === totalFiles) {
+                    res.json(releases);
+                }
+            });
+        })(files[i]);
+    }
+
+    if (totalFiles === 0) {
+        res.json(releases);
+    }
+});
+
 router.post('/', function(req, res) {
 
     var releasesDir = path.join(req.body.project.path, helper.RELEASES_DIR),
@@ -20,7 +48,7 @@ router.post('/', function(req, res) {
     helper.createDir(releasesDir, function() {
 
         fs.mkdirSync(releaseDir);
-        fs.writeFile(path.join(releaseDir, helper.ACTIVE_ITERATION_FILE), 1, helper.ENCODING);
+        fs.writeFile(path.join(releaseDir, helper.RELEASE_STATUS_FILE), helper.prepareForSave({closed: false, activeIteration: 1, iterations: req.body.iterations.length, iterationsStatus: []}), helper.ENCODING);
 
         for (var i = 0, l = req.body.iterations.length; i < l; i++) {
 
