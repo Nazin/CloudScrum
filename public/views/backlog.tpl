@@ -169,10 +169,11 @@
                     <h4 class="modal-title">New release</h4>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-danger" ng-show="release.error !== ''">{{ release.error }}</div>
                     <div class="form-group">
                         <label for="releaseName" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="releaseName" ng-model="release.name" required />
+                            <input type="text" class="form-control" id="releaseName" ng-model="release.name" ng-pattern="/^[a-zA-Z0-9_\-. ]+$/" required />
                         </div>
                     </div>
                     <div class="form-group">

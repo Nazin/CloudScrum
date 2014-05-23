@@ -8,6 +8,8 @@ module.exports = {
     RELEASES_DIR: 'releases',
 
     ID_FILE: 'id',
+    ITERATION_INFO_FILE: 'info.json',
+    ACTIVE_ITERATION_FILE: 'active-iteration',
 
     ENCODING: 'utf8',
 

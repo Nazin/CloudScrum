@@ -20,6 +20,10 @@ cloudScrum.config(function($routeProvider) {
         controller: 'BacklogController',
         templateUrl: 'views/backlog.tpl',
         title: 'Backlog'
+    }).when('/iteration-tracking', {
+        controller: 'IterationTrackingController',
+        templateUrl: 'views/iteration-tracking.tpl',
+        title: 'Iteration tracking'
     });
 });
 

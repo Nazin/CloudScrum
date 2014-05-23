@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('BacklogController', function BacklogController($rootScope, $scope, $http, Flow) {
+cloudScrum.controller('BacklogController', function BacklogController($rootScope, $scope, $http, $location, Flow) {
 
     $rootScope.selectProject();
 
@@ -15,6 +15,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     $scope.newReleaseModal = $('#new-release-modal');
 
     $scope.release = {
+        error: '',
         iterationLength: 14,
         startDate: moment().add('days', 1).format('YYYY-MM-DD'),
         minDate: moment().format('YYYY-MM-DD'),
@@ -180,7 +181,43 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     $scope.createRelease = function() {
-        console.log('todo');//TODO API call
+
+        if (!$scope.newReleaseModal.block()) {
+            return;
+        }
+
+        $rootScope.loading = true;
+        var iterations = [], stories = [], iteration = 1;
+
+        for (var i = 0; i < $scope.stories.length; i++) {
+            if (typeof $scope.stories[i].ruler === 'undefined') {
+                stories.push($scope.stories[i].id);
+            } else {
+                iterations.push({
+                    closed: false,
+                    stories: stories.slice(0),
+                    startDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration-1)).format('YYYY-MM-DD'),
+                    endDate: moment($scope.releaseStartDate).add('days', $scope.iterationLength*(iteration++)).format('YYYY-MM-DD')
+                });
+                stories = [];
+            }
+        }
+
+        $scope.release.error = '';
+
+        $http.post('/releases', { release: $scope.release, iterations: iterations, project: Flow.getActiveProjectInfo() }).success(function(response) {
+
+            if (response.status === 'success') {
+                $scope.newReleaseModal.modal('hide');
+                Flow.setActiveRelease($scope.release.name);
+                $location.path('/iteration-tracking');
+            } else {
+                $scope.release.error = response.message;
+            }
+
+            $rootScope.loading = false;
+            $scope.newReleaseModal.unblock();
+        });
     };
 
     var orderChanged = false, oldPositions;
