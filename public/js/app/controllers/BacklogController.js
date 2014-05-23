@@ -4,6 +4,8 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
 
     $rootScope.selectProject();
 
+    $scope.sortable = false;
+
     $scope.stories = [];
     $scope.newStoryModal = $('#new-story-modal');
     $scope.newTaskModal = $('#new-task-modal');
@@ -106,5 +108,33 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
 
     $scope.setStory = function(story) {
         $scope.activeStory = story;
+    };
+
+    var orderChanged = false, oldPositions;
+
+    $scope.sortableOptions = {
+        start: function() {
+            orderChanged = false;
+            oldPositions = {};
+            for (var i = 0, l = $scope.stories.length; i < l; i++) {
+                oldPositions[$scope.stories[i].id] = i;
+            }
+        },
+        stop: function() {
+            if (orderChanged) {
+                var positions = {};
+                for (var i = 0, l = $scope.stories.length; i < l; i++) {
+                    if (oldPositions[$scope.stories[i].id] !== i) {
+                        positions[$scope.stories[i].id] = i;
+                    }
+                }
+                $http.put('/backlog/order', { positions: positions, project: Flow.getActiveProjectInfo() }).success(function() {});
+            }
+        },
+        update: function() {
+            orderChanged = true;
+        },
+        axis: 'y',
+        cancel: '.disabled'
     };
 });

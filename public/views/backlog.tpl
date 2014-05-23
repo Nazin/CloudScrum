@@ -1,5 +1,6 @@
 <p class="clearfix buttons-nav">
     <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#new-story-modal">Add new</button>
+    <button type="button" class="btn pull-right" ng-click="sortable = !sortable" ng-show="stories.length !== 0 && !planning" ng-class="{ 'btn-info': !sortable, 'btn-success': sortable }">Sort</button>
 </p>
 
 <div class="backlog-stories" ng-class="{ active: planning }">

@@ -61,6 +61,25 @@ router.post('/', function(req, res) {
     });
 });
 
+router.put('/order', function(req, res) {
+
+    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR);
+
+    for (var id in req.body.positions) {
+
+        (function(storyFile, position) {
+
+            fs.readFile(storyFile, helper.ENCODING, function(error, data) {
+                var story = JSON.parse(data);
+                story.position = position;
+                fs.writeFileSync(storyFile, helper.prepareForSave(story), helper.ENCODING);
+            });
+        })(path.join(backlogDir, id + '.json'), req.body.positions[id]);
+    }
+
+    res.json(helper.prepareSuccessResponse());
+});
+
 router.put('/:id', function(req, res) {
     helper.editBacklogStory(req, res, function(story) {
         story[req.body.field] = req.body.value;
