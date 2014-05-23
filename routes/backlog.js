@@ -12,19 +12,26 @@ router.get('/', function(req, res) {
 
     for (var i = 0, l = files.length; i < l; i++) {
 
-        fs.readFile(path.join(backlogDir, files[i]), helper.ENCODING, function(error, data) {
+        (function(fileName) {
 
-            stories.push(JSON.parse(data));
+            fs.readFile(path.join(backlogDir, fileName), helper.ENCODING, function(error, data) {
 
-            if (++filesRead === totalFiles) {
+                try {
+                    stories.push(JSON.parse(data));
+                } catch (err) {
+                    console.log('Story: ' + helper.BACKLOG_DIR + '/' + fileName + ' corrupted!');
+                }
 
-                stories.sort(function(a, b) {
-                    return a.position - b.position;
-                });
+                if (++filesRead === totalFiles) {
 
-                res.json(stories);
-            }
-        });
+                    stories.sort(function(a, b) {
+                        return a.position - b.position;
+                    });
+
+                    res.json(stories);
+                }
+            });
+        })(files[i]);
     }
 });
 
@@ -60,6 +67,18 @@ router.put('/:id', function(req, res) {
 
     var data = JSON.parse(fs.readFileSync(storyFile, helper.ENCODING));
     data[req.body.field] = req.body.value;
+
+    fs.writeFileSync(storyFile, helper.prepareForSave(data), helper.ENCODING);
+
+    res.json(helper.prepareSuccessResponse());
+});
+
+router.post('/:id/tasks', function(req, res) {
+
+    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR), storyFile = path.join(backlogDir, req.params.id + '.json');
+
+    var data = JSON.parse(fs.readFileSync(storyFile, helper.ENCODING));
+    data.tasks.push(req.body.task);
 
     fs.writeFileSync(storyFile, helper.prepareForSave(data), helper.ENCODING);
 

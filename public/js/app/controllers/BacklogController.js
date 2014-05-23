@@ -6,6 +6,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
 
     $scope.stories = [];
     $scope.newStoryModal = $('#new-story-modal');
+    $scope.newTaskModal = $('#new-task-modal');
 
     $http.get('/backlog', { params: { path: Flow.getActiveProjectInfo().path } }).success(function(response) {
         $scope.stories = response;
@@ -26,7 +27,19 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
         };
     };
 
+    var newTask = function() {
+        $scope.task = {
+            title: '',
+            estimate: undefined,
+            effort: 0,
+            owner: '',
+            status: '',
+            details: ''
+        };
+    };
+
     newStory();
+    newTask();
 
     $scope.saveStory = function() {
 
@@ -40,7 +53,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
             $scope.story.id = response.data.id;
             $scope.stories.push(JSON.parse(JSON.stringify($scope.story)));
             $scope.newStoryModal.modal('hide');
-            $rootScope.newProjectModal.unblock();
+            $scope.newStoryModal.unblock();
             newStory();
         });
     };
@@ -59,5 +72,23 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
                 element.unblockElement();
             });
         }
+    };
+
+    $scope.saveTask = function() {
+
+        if (!$scope.newTaskModal.block()) {
+            return;
+        }
+
+        $http.post('/backlog/' + $scope.activeStory.id + '/tasks', { task: $scope.task, project: Flow.getActiveProjectInfo() }).success(function() {
+            $scope.activeStory.tasks.push(JSON.parse(JSON.stringify($scope.task)));
+            $scope.newTaskModal.modal('hide');
+            $scope.newTaskModal.unblock();
+            newTask();
+        });
+    };
+
+    $scope.setStory = function(story) {
+        $scope.activeStory = story;
     };
 });

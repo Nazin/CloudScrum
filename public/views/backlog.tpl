@@ -115,3 +115,40 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="new-task-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form role="form" class="form-horizontal" name="newTaskForm" novalidate>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">New task</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="taskTitle" class="col-sm-2 control-label">Title</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="taskTitle" ng-model="task.title" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEstimate" class="col-sm-2 control-label">Estimate</label>
+                        <div class="col-xs-3">
+                            <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="task.estimate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDetails" class="col-sm-2 control-label">Details</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" rows="3" id="taskDetails" ng-model="task.details"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid" ng-click="saveTask()">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
