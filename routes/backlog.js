@@ -8,9 +8,16 @@ router.get('/', function(req, res) {
 
     var backlogDir = path.join(req.query.path, helper.BACKLOG_DIR);
 
-    var files = fs.readdirSync(backlogDir), stories = [], filesRead = 0, totalFiles = files.length;
+    var files = fs.readdirSync(backlogDir), stories = [], filesRead = 0, totalFiles = files.length, i, l;
 
-    for (var i = 0, l = files.length; i < l; i++) {
+    for (i = files.length-1; i >= 0 ; i--) {
+        if (files[i].slice(-5) !== '.json') {
+            files.splice(i, 1);
+            totalFiles--;
+        }
+    }
+
+    for (i = 0, l = files.length; i < l; i++) {
 
         (function(fileName) {
 
@@ -33,31 +40,33 @@ router.get('/', function(req, res) {
             });
         })(files[i]);
     }
+
+    if (totalFiles === 0) {
+        res.json(stories);
+    }
 });
 
 router.post('/', function(req, res) {
 
-    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR);
+    var backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR), idFile = path.join(backlogDir, helper.ID_FILE);
 
     helper.createDir(backlogDir, function() {
 
-        var files = fs.readdirSync(backlogDir), nextId = 1;
+        fs.readFile(idFile, function(error, data) {
 
-        if (files.length !== 0) {
+            var nextId = 1;
 
-            files.sort(function(a, b) {
-                return parseInt(a.replace('.json', '')) - parseInt(b.replace('.json', ''));
-            });
+            if (typeof data !== 'undefined') {
+                nextId = parseInt(data);
+            }
 
-            nextId = parseInt(files[files.length - 1].replace('.json', ''));
-            nextId++;
-        }
+            req.body.story.id = nextId;
 
-        req.body.story.id = nextId;
+            fs.writeFileSync(path.join(backlogDir, nextId + '.json'), helper.prepareForSave(req.body.story), helper.ENCODING);
+            fs.writeFileSync(idFile, ++nextId, helper.ENCODING);
 
-        fs.writeFileSync(path.join(backlogDir, nextId + '.json'), helper.prepareForSave(req.body.story), helper.ENCODING);
-
-        res.json(helper.prepareSuccessResponse({id: nextId}));
+            res.json(helper.prepareSuccessResponse({id: 0}));
+        });
     });
 });
 

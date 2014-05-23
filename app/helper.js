@@ -7,6 +7,8 @@ module.exports = {
     BACKLOG_DIR: 'backlog',
     RELEASES_DIR: 'releases',
 
+    ID_FILE: 'id',
+
     ENCODING: 'utf8',
 
     prepareErrorResponse: function(message) {
@@ -17,13 +19,13 @@ module.exports = {
         return {status: 'success', data: data || {}};
     },
 
-    createDir: function(path, allwaysCallback) {
+    createDir: function(path, alwaysCallback) {
         fs.exists(path, function(exists) {
             if (!exists) {
                 fs.mkdirSync(path);
             }
-            if (allwaysCallback) {
-                allwaysCallback();
+            if (alwaysCallback) {
+                alwaysCallback();
             }
         });
     },
