@@ -39,4 +39,8 @@ cloudScrum.service('Configuration', function Configuration($q, $http,Flow) {
     self.getTasksStatuses = function() {
         return configuration.taskStatuses || defaultConfiguration.taskStatuses;
     };
+
+    self.getUsers = function() {
+        return users;
+    };
 });

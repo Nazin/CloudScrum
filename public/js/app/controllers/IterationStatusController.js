@@ -8,7 +8,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
     $scope.release = Flow.getActiveRelease();
 
     $scope.iterations = [];
-    $scope.iteration = (Flow.getActiveIteration() - 1).toString();
+    $scope.iteration = Flow.getActiveIteration() - 1;
 
     $scope.iterationData = [];
 
@@ -27,11 +27,11 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         Flow.setActiveRelease($scope.release);
         getIterations();
         loadIteration($scope.releases[$scope.release].activeIteration);
-        $scope.iteration = ($scope.releases[$scope.release].activeIteration - 1).toString();
+        $scope.iteration = $scope.releases[$scope.release].activeIteration - 1;
     };
 
     $scope.changeIteration = function() {
-        loadIteration(parseInt($scope.iteration) + 1);
+        loadIteration($scope.iteration + 1);
     };
 
     var getIterations = function() {
@@ -74,6 +74,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
             $scope.iterationData = response;
             $rootScope.loading = false;
             countStoryPoints();
+            $scope.loadIterationCallback(response);
         });
     }
 });
