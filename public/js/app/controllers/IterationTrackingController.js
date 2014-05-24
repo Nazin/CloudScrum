@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('IterationTrackingController', function IterationTrackingController($scope, $http, Flow, Configuration) {
+cloudScrum.controller('IterationTrackingController', function IterationTrackingController($rootScope, $scope, $http, Flow, Configuration) {
 
     $('.modal-backdrop').remove();
 
@@ -19,8 +19,10 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
 
     newTask();
 
-    $scope.loadIterationCallback = function(iteration) {
+    $scope.loadIterationCallback = function(iteration, release) {
         $scope.iteration = iteration;
+        $scope.release = release;
+        $scope.currentIteration = Flow.getActiveIteration();
         for (var i = 0, l = $scope.iteration.stories.length; i < l; i++) {
             $scope.updateEffort($scope.iteration.stories[i]);
         }
@@ -109,10 +111,32 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         }
     };
 
+    $scope.closeIteration = function() {
+        bootbox.confirm('Are you sure you want to close this iteration? All stories which are not accepted will be moved to the next iteration!', function(result) {
+            if (result) {
+                var move = [], accepted = [];
+                $rootScope.loading = true;
+                for (var i = 0, l = $scope.iteration.stories.length; i < l; i++) {
+                    var story = $scope.iteration.stories[i];
+                    if (story.status === Configuration.getAcceptedStatusIndex()) {
+                        accepted.push(story.id);
+                    } else {
+                        move.push(story.id);
+                    }
+                }
+                $http.put('/iteration/' + $scope.currentIteration, { close: true, move: move, accepted: accepted, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(function(response) {
+                    $scope.release = response;
+                    $scope.currentIteration++;
+                    $scope.$broadcast(Flow.CLOSE_ITERATION, response);
+                });
+            }
+        });
+    };
+
     $scope.updateIterationStatus = function(isStory) {
         isStory = typeof isStory === 'undefined' ? true : isStory;
         if (isStory) {
-            $scope.$broadcast(Flow.UPDATE_ITERATION_STATUS, {});
+            $scope.$broadcast(Flow.UPDATE_ITERATION_STATUS);
         }
     };
 

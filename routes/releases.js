@@ -64,7 +64,7 @@ router.post('/', function(req, res) {
                             if (++storiesMoved === allStories) {
                                 res.json(helper.prepareSuccessResponse());
                             }
-                        })
+                        });
                     }
 
                     delete iterationData.stories;

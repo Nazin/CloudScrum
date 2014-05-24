@@ -40,6 +40,10 @@
     </div>
 </div>
 
+<p class="clearfix buttons-nav">
+    <button type="button" class="btn btn-info pull-right" ng-click="closeIteration()" ng-show="currentIteration === release.activeIteration && currentIteration !== release.iterations">Close iteration</button>
+</p>
+
 <form role="form" class="form-inline" name="editIterationForm" novalidate>
     <table class="table" id="iteration-tracking">
         <thead>

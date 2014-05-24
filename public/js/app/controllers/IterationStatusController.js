@@ -25,10 +25,15 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         countStoryPoints();
     });
 
+    $scope.$on(Flow.CLOSE_ITERATION, function(message, release) {
+        $scope.releases[$scope.release] = release;
+        $scope.changeRelease();
+    });
+
     loadIteration();
 
     $scope.changeRelease = function() {
-        Flow.setActiveRelease($scope.release);
+        Flow.setActiveRelease($scope.release, $scope.releases[$scope.release].activeIteration);
         getIterations();
         loadIteration($scope.releases[$scope.release].activeIteration);
         $scope.iteration = $scope.releases[$scope.release].activeIteration - 1;
@@ -78,7 +83,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
             $scope.iterationData = response;
             $rootScope.loading = false;
             countStoryPoints();
-            $scope.loadIterationCallback(response);
+            $scope.loadIterationCallback(response, $scope.releases[$scope.release]);
         });
     }
 });

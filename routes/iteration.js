@@ -31,6 +31,93 @@ router.get('/:id', function(req, res) {
     }
 });
 
+var userIterationStatus = function(iterationStatus, owner) {
+    if (typeof iterationStatus.users[owner] === 'undefined') {
+        iterationStatus.users[owner] = {
+            storyPoints: 0,
+            stories: 0,
+            tasks: 0,
+            tasksEstimated: 0,
+            tasksEffort: 0
+        };
+    }
+};
+
+router.put('/:id', function(req, res) {
+
+    if (req.body.close) {
+
+        var releaseDir = path.join(req.body.project.path, helper.RELEASES_DIR, req.body.name), nextIterationId = parseInt(req.params.id) + 1, i, l, totalAccepted = req.body.accepted.length, acceptedRead = 0,
+            iterationDir = path.join(releaseDir, req.params.id),
+            nextIterationDir = path.join(releaseDir, nextIterationId.toString()),
+            releaseStatusFile = path.join(releaseDir, helper.RELEASE_STATUS_FILE),
+            iterationInfoFile = path.join(iterationDir, helper.ITERATION_INFO_FILE);//TODO zamienić closed na true
+
+        var iterationStatus = {
+            velocity: 0,
+            acceptedStoriesCount: 0,
+            tasksCount: 0,
+            totalTasksEstimation: 0,
+            totalTasksEffort: 0,
+            users: {}
+        };
+
+        fs.readFile(iterationInfoFile, helper.ENCODING, function(error, data) {
+            var iterationInfo = JSON.parse(data);
+            iterationInfo.closed = true;
+            fs.writeFileSync(iterationInfoFile, helper.prepareForSave(iterationInfo), helper.ENCODING);
+        });
+
+        for (i = 0, l = req.body.move.length; i < l; i++) {
+            var storyFileName = req.body.move[i] + helper.STORY_SUFFIX;
+            fs.rename(path.join(iterationDir, storyFileName), path.join(nextIterationDir, storyFileName));
+        }
+
+        for (i = 0; i < totalAccepted; i++) {
+
+            fs.readFile(path.join(iterationDir, req.body.accepted[i] + helper.STORY_SUFFIX), helper.ENCODING, function(error, data) {
+
+                var story = JSON.parse(data);
+
+                iterationStatus.velocity += story.estimate;
+                iterationStatus.acceptedStoriesCount++;
+                iterationStatus.tasksCount += story.tasks.length;
+
+                userIterationStatus(iterationStatus, story.owner);
+
+                iterationStatus.users[story.owner].stories++;
+                iterationStatus.users[story.owner].storyPoints += story.estimate;
+
+                for (var j = 0, lj = story.tasks.length; j < lj; j++) {
+
+                    iterationStatus.totalTasksEstimation += story.tasks[j].estimate;
+                    iterationStatus.totalTasksEffort += story.tasks[j].effort;
+
+                    userIterationStatus(iterationStatus, story.tasks[j].owner);
+
+                    iterationStatus.users[story.tasks[j].owner].tasks++;
+                    iterationStatus.users[story.tasks[j].owner].tasksEstimated += story.tasks[j].estimate;
+                    iterationStatus.users[story.tasks[j].owner].tasksEffort += story.tasks[j].effort;
+                }
+
+                if (++acceptedRead === totalAccepted) {
+
+                    var releaseStatus = JSON.parse(fs.readFileSync(releaseStatusFile, helper.ENCODING));
+
+                    releaseStatus.activeIteration = nextIterationId;
+                    releaseStatus.iterationsStatus.push(iterationStatus);
+
+                    fs.writeFileSync(releaseStatusFile, helper.prepareForSave(releaseStatus), helper.ENCODING);
+
+                    res.json(releaseStatus);
+                }
+            });
+        }
+    } else {
+        res.json(helper.prepareErrorResponse('Bad request'));
+    }
+});
+
 router.put('/:id/:sid', function(req, res) {
     helper.editIterationStory(req, res, function(story) {
         story[req.body.field] = req.body.value;
