@@ -64,14 +64,14 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="story.owner" ng-options="user.email as user.name for user in users" ng-change="edit()" ng-disabled="iteration.closed">
+                        <select name="owner" class="form-control input-sm" ng-model="story.owner" ng-options="user.email as user.name for user in users" ng-select-value-change="updateStory($field, $value, story.id, $event)" ng-disabled="iteration.closed">
                             <option value=""></option>
                         </select>
                     </div>
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="story.status" ng-options="id*1 as name for (id, name) in storiesStatuses" ng-change="edit();updateStoryPoints();" ng-disabled="iteration.closed"></select>
+                        <select name="status" class="form-control input-sm" ng-model="story.status" ng-options="id*1 as name for (id, name) in storiesStatuses" ng-select-value-change="updateStory($field, $value, story.id, $event)" ng-change="updateIterationStatus();" ng-disabled="iteration.closed"></select>
                     </div>
                 </td>
                 <td>{{ story.estimate }} SP</td>
@@ -84,20 +84,20 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="task.owner" ng-options="user.email as user.name for user in users" ng-change="edit()" ng-disabled="iteration.closed">
+                        <select name="owner" class="form-control input-sm" ng-model="task.owner" ng-options="user.email as user.name for user in users" ng-select-value-change="updateTask($field, $value, story.id, $index, $event)" ng-disabled="iteration.closed">
                             <option value=""></option>
                         </select>
                     </div>
                 </td>
                 <td>
                     <div class="form-group">
-                        <select class="form-control input-sm" ng-model="task.status" ng-options="id*1 as name for (id, name) in tasksStatuses" ng-change="edit()" ng-disabled="iteration.closed"></select>
+                        <select name="status" class="form-control input-sm" ng-model="task.status" ng-options="id*1 as name for (id, name) in tasksStatuses" ng-select-value-change="updateTask($field, $value, story.id, $index, $event)" ng-disabled="iteration.closed"></select>
                     </div>
                 </td>
                 <td>{{ task.estimate }} h</td>
                 <td>
                     <div class="form-group">
-                        <input type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-change="updateEffort(story);edit();" required ng-readonly="iteration.closed" /> h
+                        <input name="effort" type="number" class="form-control input-sm" ng-model="task.effort" ng-min="0" min="0" ng-value-change="updateTask($field, $value, story.id, $index, $event)" ng-change="updateEffort(story);" required ng-readonly="iteration.closed" /> h
                     </div>
                 </td>
             </tr>

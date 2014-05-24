@@ -31,7 +31,27 @@ cloudScrum.directive('ngValueChange', function($parse) {
                             fn(scope, {$event: event, $field: attr['name'], $value: newValue});
                         });
                     }
-                })
+                });
+            };
+        }
+    };
+});
+
+cloudScrum.directive('ngSelectValueChange', function($parse) {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        compile: function($element, attr) {
+
+            var fn = $parse(attr['ngSelectValueChange']);
+
+            return function(scope, element, attr) {
+
+                element.on('change', function() {
+                    scope.$apply(function() {
+                        fn(scope, {$event: event, $field: attr['name'], $value: scope.$eval(attr['ngModel'])});
+                    });
+                });
             };
         }
     };

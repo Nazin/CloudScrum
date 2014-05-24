@@ -31,9 +31,21 @@ router.get('/:id', function(req, res) {
     }
 });
 
+router.put('/:id/:sid', function(req, res) {
+    helper.editIterationStory(req, res, function(story) {
+        story[req.body.field] = req.body.value;
+    });
+});
+
 router.post('/:id/:sid/tasks', function(req, res) {
     helper.editIterationStory(req, res, function(story) {
         story.tasks.push(req.body.task);
+    });
+});
+
+router.put('/:id/:sid/tasks/:tid', function(req, res) {
+    helper.editIterationStory(req, res, function(story) {
+        story.tasks[req.params.tid][req.body.field] = req.body.value;
     });
 });
 

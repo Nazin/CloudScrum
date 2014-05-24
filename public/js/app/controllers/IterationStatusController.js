@@ -21,6 +21,10 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         }
     });
 
+    $scope.$on(Flow.UPDATE_ITERATION_STATUS, function() {
+        countStoryPoints();
+    });
+
     loadIteration();
 
     $scope.changeRelease = function() {

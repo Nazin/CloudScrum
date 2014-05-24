@@ -60,15 +60,15 @@
                             <div class="task" ng-repeat="task in story.tasks">
                                 <div class="form-group">
                                     <div class="col-sm-8">
-                                        <input name="title" type="text" class="form-control" ng-model="task.title" ng-value-change="updateTask($field, $value, story.id, $index,$event)" ng-readonly="planning" placeholder="Title" required />
+                                        <input name="title" type="text" class="form-control" ng-model="task.title" ng-value-change="updateTask($field, $value, story.id, $index, $event)" ng-readonly="planning" placeholder="Title" required />
                                     </div>
                                     <div class="col-sm-3 col-sm-offset-1">
-                                        <input name="estimate" type="number" min="1" class="form-control" ng-model="task.estimate" ng-value-change="updateTask($field, $value, story.id, $index,$event)" ng-readonly="planning" placeholder="Estimate" required />
+                                        <input name="estimate" type="number" min="1" class="form-control" ng-model="task.estimate" ng-value-change="updateTask($field, $value, story.id, $index, $event)" ng-readonly="planning" placeholder="Estimate" required />
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="col-sm-12">
-                                        <textarea name="details" class="form-control" rows="2" ng-model="task.details" ng-value-change="updateTask($field, $value, story.id, $index,$event)" ng-readonly="planning" placeholder="Details"></textarea>
+                                        <textarea name="details" class="form-control" rows="2" ng-model="task.details" ng-value-change="updateTask($field, $value, story.id, $index, $event)" ng-readonly="planning" placeholder="Details"></textarea>
                                     </div>
                                 </div>
                             </div>
