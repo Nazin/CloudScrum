@@ -122,16 +122,19 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     $scope.cancelPlanning = function() {
-        if (confirm('Are you sure?')) {//TODO maybe some nicer confirm (not js default)
-            $rootScope.error = '';
-            $scope.planning = false;
-            $scope.iterations = 0;
-            for (var i = $scope.stories.length - 1; i >= 0; i--) {
-                if (typeof $scope.stories[i].ruler !== 'undefined') {
-                    $scope.stories.splice(i, 1);
+        bootbox.confirm('Are you sure?', function(result) {
+            if (result) {
+                $rootScope.error = '';
+                $scope.planning = false;
+                $scope.iterations = 0;
+                for (var i = $scope.stories.length - 1; i >= 0; i--) {
+                    if (typeof $scope.stories[i].ruler !== 'undefined') {
+                        $scope.stories.splice(i, 1);
+                    }
                 }
+                $rootScope.$apply();
             }
-        }
+        });
     };
 
     $scope.addIteration = function() {
