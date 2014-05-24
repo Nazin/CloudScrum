@@ -38,15 +38,22 @@ module.exports = {
         return JSON.stringify(data, null, '\t');
     },
 
-    editBacklogStory: function(req, res, callback) {
+    editStory: function(storyFile, res, callback) {
 
-        var storyFile = path.join(req.body.project.path, this.BACKLOG_DIR, req.params.id + '.json'), story = JSON.parse(fs.readFileSync(storyFile, this.ENCODING));
+        var story = JSON.parse(fs.readFileSync(storyFile, this.ENCODING));
 
         callback(story);
 
         fs.writeFileSync(storyFile, this.prepareForSave(story), this.ENCODING);
-
         res.json(this.prepareSuccessResponse());
+    },
+
+    editBacklogStory: function(req, res, callback) {
+        this.editStory(path.join(req.body.project.path, this.BACKLOG_DIR, req.params.id + this.STORY_SUFFIX), res, callback);
+    },
+
+    editIterationStory: function(req, res, callback) {
+        this.editStory(path.join(req.body.project.path, this.RELEASES_DIR, req.body.name, req.params.id, req.params.sid + this.STORY_SUFFIX), res, callback);
     },
 
     readStories: function(files, dir, callback) {

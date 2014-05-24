@@ -76,4 +76,15 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope) {
     self.getActiveIteration = function() {
         return $localStorage.cloudScrumActiveIteration;
     };
+
+    self.getNewTask = function() {
+        return {
+            title: '',
+            estimate: undefined,
+            effort: 0,
+            owner: '',
+            status: 0,
+            details: ''
+        };
+    };
 });

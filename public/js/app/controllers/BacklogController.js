@@ -42,14 +42,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     };
 
     var newTask = function() {
-        $scope.task = {
-            title: '',
-            estimate: undefined,
-            effort: 0,
-            owner: '',
-            status: 0,
-            details: ''
-        };
+        $scope.task = Flow.getNewTask();
     };
 
     newStory();

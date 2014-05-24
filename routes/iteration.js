@@ -31,4 +31,10 @@ router.get('/:id', function(req, res) {
     }
 });
 
+router.post('/:id/:sid/tasks', function(req, res) {
+    helper.editIterationStory(req, res, function(story) {
+        story.tasks.push(req.body.task);
+    });
+});
+
 module.exports = router;
