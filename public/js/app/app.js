@@ -27,7 +27,7 @@ cloudScrum.config(function($routeProvider) {
     });
 });
 
-cloudScrum.run(function($rootScope, Flow, $location, $http) {
+cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration) {
 
     $rootScope.loading = true;
     $rootScope.initialized = Flow.isInitialized();
@@ -68,9 +68,10 @@ cloudScrum.run(function($rootScope, Flow, $location, $http) {
                 $rootScope.projectName = '';
                 $rootScope.projectPath = '';
 
+                Configuration.loadConfiguration(true);
+
                 $rootScope.newProjectModal.modal('hide');
                 $location.path('/backlog');
-                //TODO ask for users (Flow.getUsers())
             } else {
                 $rootScope.projectCreationError = response.message;
             }
@@ -81,6 +82,7 @@ cloudScrum.run(function($rootScope, Flow, $location, $http) {
 
     $rootScope.loadProject = function(index) {
         Flow.setActiveProject(index);
+        Configuration.loadConfiguration(true);
         $location.path('/');
     };
 

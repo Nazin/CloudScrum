@@ -7,6 +7,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser());
 
 app.use('/', require('./routes/index'));
+app.use('/configuration', require('./routes/configuration'));
 app.use('/projects', require('./routes/projects'));
 app.use('/backlog', require('./routes/backlog'));
 app.use('/releases', require('./routes/releases'));
