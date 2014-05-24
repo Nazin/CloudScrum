@@ -34,7 +34,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
             estimate: undefined,
             epic: '',
             owner: '',
-            status: '',
+            status: 0,
             position: 0,
             details: '',
             tasks: []
@@ -47,7 +47,7 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
             estimate: undefined,
             effort: 0,
             owner: '',
-            status: '',
+            status: 0,
             details: ''
         };
     };
