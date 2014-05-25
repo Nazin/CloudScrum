@@ -87,7 +87,6 @@ router.put('/:id', function(req, res) {
         for (i = 0, l = req.body.move.length; i < l; i++) {
             var storyFileName = req.body.move[i] + helper.STORY_SUFFIX;
             if (req.body.closeRelease) {
-                console.log('aaa');
                 fs.rename(path.join(iterationDir, storyFileName), path.join(backlogDir, storyFileName));
             } else {
                 fs.rename(path.join(iterationDir, storyFileName), path.join(nextIterationDir, storyFileName));
