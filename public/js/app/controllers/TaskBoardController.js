@@ -52,7 +52,8 @@ cloudScrum.controller('TaskBoardController', function TaskBoardController($scope
                 if (orderChanged) {
 
                     var id = ui.item.data('story'), tid = ui.item.data('task'), task = $('.task[data-story=' + id + '][data-task=' + tid + ']'),
-                        taskObj = $scope.iteration.stories[ui.item.data('story-index')].tasks[tid],
+                        storyObj = $scope.iteration.stories[ui.item.data('story-index')],
+                        taskObj = storyObj.tasks[tid],
                         request = { field: 'status', value: changedToStatus, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() };
 
                     task.addClass('disabled');
@@ -67,7 +68,17 @@ cloudScrum.controller('TaskBoardController', function TaskBoardController($scope
                     $http.put('/iteration/' + Flow.getActiveIteration() + '/' + id + '/tasks/' + tid, request).success(function() {
                         task.removeClass('disabled');
                     });
-                    //TODO detect if all task inside the story completed
+
+                    var index = Configuration.getUpdateStoryStatusOnAllTaskCompletion();
+                    if (index !== -1) {
+                        for (var i = 0, l = storyObj.tasks.length; i < l; i++) {
+                            if (storyObj.tasks[i].status !== $scope.tasksStatuses.length - 1) {
+                                return;
+                            }
+                        }
+                        $http.put('/iteration/' + Flow.getActiveIteration() + '/' + id, { field: 'status', value: index, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(function() {});
+                        storyObj.status = index;
+                    }
                 }
             },
             update: function(event) {
