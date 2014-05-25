@@ -24,6 +24,10 @@ cloudScrum.config(function($routeProvider) {
         controller: 'IterationTrackingController',
         templateUrl: 'views/iteration-tracking.tpl',
         title: 'Iteration tracking'
+    }).when('/task-board', {
+        controller: 'TaskBoardController',
+        templateUrl: 'views/task-board.tpl',
+        title: 'Task board'
     });
 });
 

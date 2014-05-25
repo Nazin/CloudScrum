@@ -148,7 +148,13 @@ router.post('/:id/:sid/tasks', function(req, res) {
 
 router.put('/:id/:sid/tasks/:tid', function(req, res) {
     helper.editIterationStory(req, res, function(story) {
-        story.tasks[req.params.tid][req.body.field] = req.body.value;
+        if (typeof req.body.field === 'object') {
+            for (var i = 0, l = req.body.field.length; i < l; i++) {
+                story.tasks[req.params.tid][req.body.field[i]] = req.body.value[i];
+            }
+        } else {
+            story.tasks[req.params.tid][req.body.field] = req.body.value;
+        }
     });
 });
 
