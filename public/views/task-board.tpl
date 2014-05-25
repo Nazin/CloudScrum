@@ -20,7 +20,7 @@
         </div>
         <div class="status col-xs-2" ng-repeat="status in tasksStatuses">
             <div ui-sortable="sortableOptions[story.id]" class="tasks tasks_{{ story.id }}" ng-model="story.tasksByStatus[$index]" data-status="{{ $index }}">
-                <div class="task well well-sm" ng-repeat="task in story.tasksByStatus[$index]" data-story-index="{{ $parent.$parent.$index }}" data-story="{{ story.id }}" data-task="{{ task.id }}">
+                <div class="task well well-sm"  ng-class="{ disabled: iteration.closed }" ng-repeat="task in story.tasksByStatus[$index]" data-story-index="{{ $parent.$parent.$index }}" data-story="{{ story.id }}" data-task="{{ task.id }}">
                     {{ task.title }}
                     <span class="owner">{{ users[task.owner] }}</span>
                 </div>
