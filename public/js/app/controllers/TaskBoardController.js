@@ -2,15 +2,18 @@
 
 cloudScrum.controller('TaskBoardController', function TaskBoardController($scope, $http, Configuration, Flow) {
 
+    $scope.hideTaskStatusInEditModal = true;
+
     var configurationLoaded = false, iterationsLoaded = false;
 
     Configuration.loadConfiguration().then(function() {
         configurationLoaded = true;
+        $scope.storiesStatuses = Configuration.getStoriesStatuses();
         $scope.tasksStatuses = Configuration.getTasksStatuses();
-        $scope.users = {};
-        var users = Configuration.getUsers();
-        for (var i = 0, l = users.length; i < l; i++) {
-            $scope.users[users[i].email] = users[i].name;
+        $scope.usersMapping = {};
+        $scope.users = Configuration.getUsers();
+        for (var i = 0, l = $scope.users.length; i < l; i++) {
+            $scope.usersMapping[$scope.users[i].email] = $scope.users[i].name;
         }
         if (iterationsLoaded) {
             transferStoriesToTaskBoard();
@@ -59,7 +62,7 @@ cloudScrum.controller('TaskBoardController', function TaskBoardController($scope
                     task.addClass('disabled');
                     taskObj.status = changedToStatus;
 
-                    if (taskObj.owner === '') {
+                    if (taskObj.owner === '' || taskObj.owner === null) {
                         taskObj.owner = Flow.getEmail();
                         request.field = ['status', 'owner'];
                         request.value = [changedToStatus, taskObj.owner];

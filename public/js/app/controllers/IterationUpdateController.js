@@ -110,7 +110,6 @@ cloudScrum.controller('IterationUpdateController', function IterationUpdateContr
 
     var showEditForm = function() {
         $scope.editModal = $scope.editModal || $('#edit-modal');
-        $scope.editModal.modal({ keyboard: false });
         $scope.editModal.modal('show');
     };
 });

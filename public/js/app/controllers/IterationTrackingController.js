@@ -2,6 +2,8 @@
 
 cloudScrum.controller('IterationTrackingController', function IterationTrackingController($rootScope, $scope, $http, $location, Flow, Configuration) {
 
+    $scope.hideTaskStatusInEditModal = false;
+
     $('.modal-backdrop').remove();
 
     $scope.newTaskModal = $('#new-task-modal');

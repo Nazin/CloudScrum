@@ -39,7 +39,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group" ng-if="editItemStatuses.length !== 0">
+                    <div class="form-group" ng-if="(!editItemStory && !hideTaskStatusInEditModal) || editItemStory">
                         <label for="editItemStatus" class="col-sm-2 control-label">Status</label>
                         <div class="col-sm-10">
                             <select name="status" class="form-control" id="editItemStatus" ng-model="editItem.status" ng-select-value-change="updateEditElement($field, $value, $event, editForm.$valid)" ng-change="updateIterationStatus(editItemStory);updateStoryStatus(activeStory, !editItemStory);" ng-options="id*1 as name for (id, name) in editItemStatuses" ng-disabled="iteration.closed"></select>
