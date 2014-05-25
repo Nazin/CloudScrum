@@ -95,7 +95,7 @@
                 </td>
                 <td>
                     <div class="form-group">
-                        <select name="status" class="form-control input-sm" ng-model="task.status" ng-options="id*1 as name for (id, name) in tasksStatuses" ng-select-value-change="updateTask($field, $value, story.id, $index, $event)" ng-disabled="iteration.closed"></select>
+                        <select name="status" class="form-control input-sm" ng-model="task.status" ng-options="id*1 as name for (id, name) in tasksStatuses" ng-select-value-change="updateTask($field, $value, story.id, $index, $event)" ng-change="updateStoryStatus(story)" ng-disabled="iteration.closed"></select>
                     </div>
                 </td>
                 <td>{{ task.estimate }} h</td>
@@ -209,7 +209,7 @@
                     <div class="form-group">
                         <label for="editItemStatus" class="col-sm-2 control-label">Status</label>
                         <div class="col-sm-10">
-                            <select name="status" class="form-control" id="editItemStatus" ng-model="editItem.status" ng-select-value-change="updateEditElement($field, $value, $event)" ng-change="updateIterationStatus(editItemStory);" ng-options="id*1 as name for (id, name) in editItemStatuses" ng-disabled="iteration.closed"></select>
+                            <select name="status" class="form-control" id="editItemStatus" ng-model="editItem.status" ng-select-value-change="updateEditElement($field, $value, $event)" ng-change="updateIterationStatus(editItemStory);updateStoryStatus(activeStory, !editItemStory);" ng-options="id*1 as name for (id, name) in editItemStatuses" ng-disabled="iteration.closed"></select>
                         </div>
                     </div>
                     <div class="form-group">

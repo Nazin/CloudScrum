@@ -34,14 +34,19 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
 
         if ($scope[formId].$valid) {
 
-            var element = $(event.target);
+            if (event) {
 
-            if (!element.blockElement()) {
-                return;
+                var element = $(event.target);
+
+                if (!element.blockElement()) {
+                    return;
+                }
             }
 
             $http.put('/iteration/' + Flow.getActiveIteration() + '/' + id, { field: field, value: value, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(function() {
-                element.unblockElement();
+                if (event) {
+                    element.unblockElement();
+                }
             });
         }
     };
@@ -131,6 +136,20 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
                 });
             }
         });
+    };
+
+    $scope.updateStoryStatus = function(story, isTask) {
+        isTask = typeof isTask === 'undefined' ? true : isTask;
+        var index = Configuration.getUpdateStoryStatusOnAllTaskCompletion();
+        if (isTask && index !== -1) {
+            for (var i = 0, l = story.tasks.length; i < l; i++) {
+                if (story.tasks[i].status !== $scope.tasksStatuses.length - 1) {
+                    return;
+                }
+            }
+            $scope.updateStory('status', index, story.id);
+            story.status = index;
+        }
     };
 
     $scope.updateIterationStatus = function(isStory) {
