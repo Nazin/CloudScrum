@@ -1,5 +1,5 @@
 'use strict';
 
-cloudScrum.controller('ProjectsController', function ProjectsController($rootScope, $scope, $location, Flow) {
+cloudScrum.controller('ProjectsController', function ProjectsController($rootScope) {
     $rootScope.loading = false;
 });

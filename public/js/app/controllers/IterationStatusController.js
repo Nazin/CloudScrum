@@ -45,8 +45,9 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
 
     var getIterations = function() {
         $scope.iterations = [];
+        var release = $scope.releases[$scope.release];
         for (var i = 0; i < $scope.releases[$scope.release].iterations; i++) {
-            $scope.iterations.push('Iteration ' + (i + 1) + ( i < $scope.releases[$scope.release].activeIteration - 1 ? ' (Closed)' : '' ));
+            $scope.iterations.push('Iteration ' + (i + 1) + ( i < $scope.releases[$scope.release].activeIteration - 1 || release.closed ? ' (Closed)' : '' ));
         }
     };
 

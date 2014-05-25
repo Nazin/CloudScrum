@@ -2,7 +2,7 @@
 
     <form role="form" class="form-inline" id="release-iteration-breadcrumb" novalidate>
         <div class="form-group">
-            <select class="form-control input-sm" ng-model="release" ng-options="name as name for (name, release) in releases" ng-change="changeRelease()" title="Change release"></select>
+            <select class="form-control input-sm" ng-model="release" ng-options="name as name + (release.closed ? ' (Closed)' : '') for (name, release) in releases" ng-change="changeRelease()" title="Change release"></select>
         </div>
         <div class="form-group">
             <select class="form-control input-sm" ng-model="iteration" ng-options="id*1 as name for (id, name) in iterations" ng-change="changeIteration()" title="Change iteration"></select>
@@ -42,6 +42,7 @@
 
 <p class="clearfix buttons-nav">
     <button type="button" class="btn btn-info pull-right" ng-click="closeIteration()" ng-show="currentIteration === release.activeIteration && currentIteration !== release.iterations">Close iteration</button>
+    <button type="button" class="btn btn-info pull-right" ng-click="closeRelease()" ng-show="!release.closed && currentIteration === release.activeIteration && currentIteration === release.iterations">Close release</button>
 </p>
 
 <form role="form" class="form-inline" name="editIterationForm" novalidate>
@@ -84,7 +85,7 @@
             <tr class="task" ng-repeat="task in story.tasks">
                 <td colspan="3"></td>
                 <td ng-bs-popover>
-                    <a href="" ng-click="setStory(story);showTaskDetails(task, $index)" class="popover-toggle" data-container="body" data-trigger="hover" data-placement="bottom" data-content="{{ task.details ? task.details : ' ' }}">{{ task.title }}</a>
+                    <a href="" ng-click="setStory(story);showTaskDetails(task, $index);" class="popover-toggle" data-container="body" data-trigger="hover" data-placement="bottom" data-content="{{ task.details ? task.details : ' ' }}">{{ task.title }}</a>
                 </td>
                 <td>
                     <div class="form-group">

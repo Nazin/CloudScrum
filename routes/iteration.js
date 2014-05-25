@@ -18,12 +18,11 @@ router.get('/:id', function(req, res) {
         }
     }
 
-    if (totalFiles === 0 || typeof iteration === 'undefined') {
-        res.json(iteration || {stories:[]});
+    iteration.stories = [];
+
+    if (totalFiles === 0) {
+        res.json(iteration);
     } else {
-
-        iteration.stories = [];
-
         helper.readStories(files, iterationDir, function(stories) {
             iteration.stories = stories;
             res.json(iteration);
@@ -43,6 +42,22 @@ var userIterationStatus = function(iterationStatus, owner) {
     }
 };
 
+var updateReleaseStatusFile = function(res, releaseStatusFile, nextIterationId, iterationStatus) {
+
+    var releaseStatus = JSON.parse(fs.readFileSync(releaseStatusFile, helper.ENCODING));
+
+    if (releaseStatus.iterations < nextIterationId) {
+        releaseStatus.closed = true;
+    } else {
+        releaseStatus.activeIteration = nextIterationId;
+    }
+
+    releaseStatus.iterationsStatus.push(iterationStatus);
+
+    fs.writeFileSync(releaseStatusFile, helper.prepareForSave(releaseStatus), helper.ENCODING);
+    res.json(releaseStatus);
+};
+
 router.put('/:id', function(req, res) {
 
     if (req.body.close) {
@@ -50,8 +65,9 @@ router.put('/:id', function(req, res) {
         var releaseDir = path.join(req.body.project.path, helper.RELEASES_DIR, req.body.name), nextIterationId = parseInt(req.params.id) + 1, i, l, totalAccepted = req.body.accepted.length, acceptedRead = 0,
             iterationDir = path.join(releaseDir, req.params.id),
             nextIterationDir = path.join(releaseDir, nextIterationId.toString()),
+            backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR),
             releaseStatusFile = path.join(releaseDir, helper.RELEASE_STATUS_FILE),
-            iterationInfoFile = path.join(iterationDir, helper.ITERATION_INFO_FILE);//TODO zamienić closed na true
+            iterationInfoFile = path.join(iterationDir, helper.ITERATION_INFO_FILE);
 
         var iterationStatus = {
             velocity: 0,
@@ -70,7 +86,12 @@ router.put('/:id', function(req, res) {
 
         for (i = 0, l = req.body.move.length; i < l; i++) {
             var storyFileName = req.body.move[i] + helper.STORY_SUFFIX;
-            fs.rename(path.join(iterationDir, storyFileName), path.join(nextIterationDir, storyFileName));
+            if (req.body.closeRelease) {
+                console.log('aaa');
+                fs.rename(path.join(iterationDir, storyFileName), path.join(backlogDir, storyFileName));
+            } else {
+                fs.rename(path.join(iterationDir, storyFileName), path.join(nextIterationDir, storyFileName));
+            }
         }
 
         for (i = 0; i < totalAccepted; i++) {
@@ -101,17 +122,13 @@ router.put('/:id', function(req, res) {
                 }
 
                 if (++acceptedRead === totalAccepted) {
-
-                    var releaseStatus = JSON.parse(fs.readFileSync(releaseStatusFile, helper.ENCODING));
-
-                    releaseStatus.activeIteration = nextIterationId;
-                    releaseStatus.iterationsStatus.push(iterationStatus);
-
-                    fs.writeFileSync(releaseStatusFile, helper.prepareForSave(releaseStatus), helper.ENCODING);
-
-                    res.json(releaseStatus);
+                    updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus);
                 }
             });
+        }
+
+        if (totalAccepted === 0) {
+            updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus);
         }
     } else {
         res.json(helper.prepareErrorResponse('Bad request'));
