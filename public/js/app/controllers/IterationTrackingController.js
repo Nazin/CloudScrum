@@ -5,7 +5,6 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     $('.modal-backdrop').remove();
 
     $scope.newTaskModal = $('#new-task-modal');
-    $scope.editModal = $('#edit-modal');
 
     Configuration.loadConfiguration().then(function() {
         $scope.storiesStatuses = Configuration.getStoriesStatuses();
@@ -24,30 +23,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         $scope.release = release;
         $scope.currentIteration = Flow.getActiveIteration();
         for (var i = 0, l = $scope.iteration.stories.length; i < l; i++) {
-            $scope.updateEffort($scope.iteration.stories[i]);
-        }
-    };
-
-    $scope.updateStory = function(field, value, id, event, formId) {
-
-        formId = formId || 'editIterationForm';
-
-        if ($scope[formId].$valid) {
-
-            if (event) {
-
-                var element = $(event.target);
-
-                if (!element.blockElement()) {
-                    return;
-                }
-            }
-
-            $http.put('/iteration/' + Flow.getActiveIteration() + '/' + id, { field: field, value: value, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(function() {
-                if (event) {
-                    element.unblockElement();
-                }
-            });
+            $scope.$broadcast(Flow.UPDATE_EFFORT, $scope.iteration.stories[i]);
         }
     };
 
@@ -63,57 +39,6 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
             $scope.newTaskModal.unblock();
             newTask();
         });
-    };
-
-    $scope.updateTask = function(field, value, id, tid, event, formId) {
-
-        formId = formId || 'editIterationForm';
-
-        if ($scope[formId].$valid) {
-
-            var element = $(event.target);
-
-            if (!element.blockElement()) {
-                return;
-            }
-
-            $http.put('/iteration/' + Flow.getActiveIteration() + '/' + id + '/tasks/' + tid, { field: field, value: value, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(function() {
-                element.unblockElement();
-            });
-        }
-    };
-
-    $scope.updateEffort = function(story) {
-
-        story.effort = 0;
-
-        for (var i = 0, l = story.tasks.length; i < l; i++) {
-            story.effort += story.tasks[i].effort;
-        }
-    };
-
-    $scope.showStoryDetails = function(story) {
-        $scope.setStory(story);
-        $scope.editItem = story;
-        $scope.editItemStory = true;
-        $scope.editItemStatuses = $scope.storiesStatuses;
-        showEditForm();
-    };
-
-    $scope.showTaskDetails = function(task, id) {
-        $scope.activeTaskId = id;
-        $scope.editItem = task;
-        $scope.editItemStory = false;
-        $scope.editItemStatuses = $scope.tasksStatuses;
-        showEditForm();
-    };
-
-    $scope.updateEditElement = function(field, value, event) {
-        if ($scope.editItemStory) {
-            $scope.updateStory(field, value, $scope.activeStory.id, event, 'editForm');
-        } else {
-            $scope.updateTask(field, value, $scope.activeStory.id, $scope.activeTaskId, event, 'editForm');
-        }
     };
 
     $scope.closeIteration = function() {
@@ -138,39 +63,13 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         });
     };
 
-    $scope.updateStoryStatus = function(story, isTask) {
-        isTask = typeof isTask === 'undefined' ? true : isTask;
-        var index = Configuration.getUpdateStoryStatusOnAllTaskCompletion();
-        if (isTask && index !== -1) {
-            for (var i = 0, l = story.tasks.length; i < l; i++) {
-                if (story.tasks[i].status !== $scope.tasksStatuses.length - 1) {
-                    return;
-                }
-            }
-            $scope.updateStory('status', index, story.id);
-            story.status = index;
-        }
-    };
-
-    $scope.updateIterationStatus = function(isStory) {
-        isStory = typeof isStory === 'undefined' ? true : isStory;
-        if (isStory) {
-            $scope.$broadcast(Flow.UPDATE_ITERATION_STATUS);
-        }
-    };
-
     $scope.toggleTasks = function($event) {
         var tmp = $($event.currentTarget);
         tmp.parents('tbody').toggleClass('active');
     };
 
-    $scope.setStory = function(story) {
+    $scope.setStoryCallback = function(story) {
         $scope.activeStory = story;
-    };
-
-    var showEditForm = function() {
-        $scope.editModal.modal({ keyboard: false });
-        $scope.editModal.modal('show');
     };
 
     var closeIteration = function(closeRelease, callback) {
