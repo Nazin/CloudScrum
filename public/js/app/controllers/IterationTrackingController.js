@@ -1,7 +1,8 @@
 'use strict';
 
-cloudScrum.controller('IterationTrackingController', function IterationTrackingController($rootScope, $scope, $http, $location, Flow, Configuration) {
+cloudScrum.controller('IterationTrackingController', function IterationTrackingController($rootScope, $scope, $http, $location, Flow, Configuration, growlNotifications) {
 
+    $rootScope.selectProject();
     $scope.hideTaskStatusInEditModal = false;
 
     $('.modal-backdrop').remove();
@@ -47,6 +48,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         bootbox.confirm('Are you sure you want to close this iteration? All stories which are not accepted will be moved to the next iteration!', function(result) {
             if (result) {
                 closeIteration(false, function(response) {
+                    growlNotifications.add('Iteration has been closed', 'success', 2000);
                     $scope.release = response;
                     $scope.currentIteration++;
                     $scope.$broadcast(Flow.CLOSE_ITERATION, response);
@@ -59,6 +61,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
         bootbox.confirm('Are you sure you want to close this release? All stories which are not accepted will be moved back to the backlog!', function(result) {
             if (result) {
                 closeIteration(true, function() {
+                    growlNotifications.add('Release has been closed', 'success', 2000);
                     $location.path('/backlog');
                 });
             }

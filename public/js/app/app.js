@@ -1,6 +1,6 @@
 'use strict';
 
-var cloudScrum = angular.module('cloudScrum', ['ngRoute', 'ngStorage', 'ui.sortable']);
+var cloudScrum = angular.module('cloudScrum', ['ngRoute', 'ngSanitize', 'ngStorage', 'ui.sortable', 'growlNotifications']);
 
 cloudScrum.config(function($routeProvider) {
 
@@ -35,7 +35,7 @@ cloudScrum.config(function($routeProvider) {
     });
 });
 
-cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration) {
+cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration, growlNotifications) {
 
     $rootScope.loading = true;
     $rootScope.initialized = Flow.isInitialized();
@@ -109,6 +109,7 @@ cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration) {
                     $location.path('/');
                 }
             } else {
+                growlNotifications.add('Please choose project', 'warning', 2000);
                 $location.path('/projects');
             }
         }

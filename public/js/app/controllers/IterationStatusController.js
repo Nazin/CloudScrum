@@ -1,8 +1,6 @@
 'use strict';
 
-cloudScrum.controller('IterationStatusController', function IterationStatusController($rootScope, $scope, $http, $location, Flow, Configuration) {
-
-    $rootScope.selectProject();
+cloudScrum.controller('IterationStatusController', function IterationStatusController($rootScope, $scope, $http, $location, Flow, Configuration, growlNotifications) {
 
     $scope.releases = [];
     $scope.release = Flow.getActiveRelease();
@@ -14,7 +12,8 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
 
     $http.get('/releases', { params: { path: Flow.getActiveProjectInfo().path } }).success(function(response) {
         $scope.releases = response;
-        if ($scope.releases.length === 0) {
+        if (Object.keys($scope.releases).length === 0) {
+            growlNotifications.add('Please create release first', 'warning', 2000);
             $location.path('/backlog');
         } else {
             getIterations();

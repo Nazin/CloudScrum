@@ -1,6 +1,6 @@
 'use strict';
 
-cloudScrum.controller('ConfigurationController', function ConfigurationController($rootScope, $scope, $timeout, Flow, Configuration) {
+cloudScrum.controller('ConfigurationController', function ConfigurationController($rootScope, $scope, $timeout, Flow, Configuration, growlNotifications) {
 
     $rootScope.selectProject();
 
@@ -57,6 +57,7 @@ cloudScrum.controller('ConfigurationController', function ConfigurationControlle
 
             Configuration.saveConfiguration(configuration, $scope[configuration], function() {
                 form(configuration).unblock();
+                growlNotifications.add('Configuration saved', 'success', 2000);
             });
         });
     };

@@ -8,6 +8,8 @@
 </head>
 <body>
 
+    <div growl-notifications class="growl-notifications"></div>
+
     <nav class="navbar navbar-default">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
@@ -31,7 +33,7 @@
                         <li class="divider"></li>
                         <li class="dropdown-header">Projects</li>
                         <li ng-repeat="project in projects"><a href="" ng-click="loadProject($index)">{{ project.name }}</a></li>
-                        <li><a href="#" data-toggle="modal" data-target="#new-project-modal" data-keyboard="true">+ New</a></li>
+                        <li><a href="" data-toggle="modal" data-target="#new-project-modal" data-keyboard="true">+ New</a></li>
                     </ul>
                 </li>
             </ul>
@@ -97,7 +99,9 @@
     <script src="js/libs/bootstrap/bootbox.js"></script>
     <script src="js/libs/angular/angular.js"></script>
     <script src="js/libs/angular/angular-route.js"></script>
+    <script src="js/libs/angular/angular-sanitize.js"></script>
     <script src="js/libs/angular/sortable.js"></script>
+    <script src="js/libs/angular/growl-notifications.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/app/app.js"></script>
     <script src="js/app/directives.js"></script>

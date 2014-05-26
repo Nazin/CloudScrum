@@ -1,7 +1,8 @@
 'use strict';
 
-cloudScrum.controller('TaskBoardController', function TaskBoardController($scope, $http, Configuration, Flow) {
+cloudScrum.controller('TaskBoardController', function TaskBoardController($rootScope, $scope, $http, Configuration, Flow) {
 
+    $rootScope.selectProject();
     $scope.hideTaskStatusInEditModal = true;
 
     var configurationLoaded = false, iterationsLoaded = false;
