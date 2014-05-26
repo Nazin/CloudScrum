@@ -24,6 +24,10 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         countStoryPoints();
     });
 
+    $scope.$on(Flow.UPDATE_RELEASE_STATUS, function() {
+        countReleaseStatus();
+    });
+
     $scope.$on(Flow.CLOSE_ITERATION, function(message, release) {
         $scope.releases[$scope.release] = release;
         $scope.changeRelease();
@@ -48,6 +52,10 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         for (var i = 0; i < $scope.releases[$scope.release].iterations; i++) {
             $scope.iterations.push('Iteration ' + (i + 1) + ( i < $scope.releases[$scope.release].activeIteration - 1 || release.closed ? ' (Closed)' : '' ));
         }
+        countReleaseStatus();
+    };
+
+    var countReleaseStatus = function() {
         $scope.releasepercentageCompleted = ($scope.releases[$scope.release].totalAccepted / $scope.releases[$scope.release].totalEstimated) * 100;
     };
 

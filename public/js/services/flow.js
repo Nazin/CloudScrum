@@ -7,6 +7,7 @@ cloudScrum.service('Flow', function Flow($q, $localStorage, $rootScope) {
     self.UPDATE_ITERATION_STATUS = 1000;
     self.CLOSE_ITERATION = 1001;
     self.UPDATE_EFFORT = 1002;
+    self.UPDATE_RELEASE_STATUS = 1003;
 
     self.isInitialized = function() {
         return $localStorage.cloudScrumInitialized || false;

@@ -78,7 +78,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     };
 
     var closeIteration = function(closeRelease, callback) {
-        var move = [], accepted = [], estimated = 0;
+        var move = [], accepted = [], estimated = 0, moveEstimation = 0;
         $rootScope.loading = true;
         for (var i = 0, l = $scope.iteration.stories.length; i < l; i++) {
             var story = $scope.iteration.stories[i];
@@ -86,9 +86,10 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
                 accepted.push(story.id);
             } else {
                 move.push(story.id);
+                moveEstimation += story.estimate;
             }
             estimated += story.estimate;
         }
-        $http.put('/iteration/' + $scope.currentIteration, { close: true, closeRelease: closeRelease, move: move, accepted: accepted, estimated: estimated, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(callback);
+        $http.put('/iteration/' + $scope.currentIteration, { close: true, closeRelease: closeRelease, move: move, accepted: accepted, estimated: estimated, moveEstimation: moveEstimation, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(callback);
     };
 });

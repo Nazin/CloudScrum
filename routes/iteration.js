@@ -72,7 +72,8 @@ router.put('/:id', function(req, res) {
             nextIterationDir = path.join(releaseDir, nextIterationId.toString()),
             backlogDir = path.join(req.body.project.path, helper.BACKLOG_DIR),
             releaseStatusFile = path.join(releaseDir, helper.RELEASE_STATUS_FILE),
-            iterationInfoFile = path.join(iterationDir, helper.ITERATION_INFO_FILE);
+            iterationInfoFile = path.join(iterationDir, helper.ITERATION_INFO_FILE),
+            nextIterationInfoFile = path.join(nextIterationDir, helper.ITERATION_INFO_FILE);
 
         var iterationStatus = {
             velocity: 0,
@@ -90,6 +91,15 @@ router.put('/:id', function(req, res) {
         fs.writeFile(iterationInfoFile, helper.prepareForSave(iterationInfo), helper.ENCODING);
 
         estimationDifference = iterationInfo.onCloseEstimation - iterationInfo.firstEstimation;
+
+        if (!req.body.closeRelease && req.body.moveEstimation !== 0) {
+
+            fs.readFile(nextIterationInfoFile, helper.ENCODING, function(error, data) {
+                var nextIterationInfo = JSON.parse(data);
+                nextIterationInfo.firstEstimation += req.body.moveEstimation;
+                fs.writeFileSync(nextIterationInfoFile, helper.prepareForSave(nextIterationInfo), helper.ENCODING);
+            });
+        } //TODO else if req.body.closeRelease && req.body.moveEstimation !== 0 -> nie trzeba zaktualizować totalEstimation w releaseFile?
 
         for (i = 0, l = req.body.move.length; i < l; i++) {
             var storyFileName = req.body.move[i] + helper.STORY_SUFFIX;

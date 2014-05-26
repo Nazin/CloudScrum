@@ -14,10 +14,13 @@
             <div class="col-xs-6 right">
                 <b>Start date</b>:<br />
                 <b>End date</b>:
+                <span ng-if="releaseData"><br /><b>Active iteration</b>:</span>
             </div>
             <div class="col-xs-6">
                 {{ releaseData ? releases[release].startDate : iterationData.startDate }}<br />
                 {{ releaseData ? releases[release].endDate : iterationData.endDate }}
+                <span ng-if="releaseData && !releases[release].closed"><br />{{ releases[release].activeIteration }}</span>
+                <span ng-if="releaseData && releases[release].closed"><br />Release closed</span>
             </div>
         </div>
         <div class="col-sm-6">
