@@ -78,7 +78,7 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
     };
 
     var closeIteration = function(closeRelease, callback) {
-        var move = [], accepted = [];
+        var move = [], accepted = [], estimated = 0;
         $rootScope.loading = true;
         for (var i = 0, l = $scope.iteration.stories.length; i < l; i++) {
             var story = $scope.iteration.stories[i];
@@ -87,7 +87,8 @@ cloudScrum.controller('IterationTrackingController', function IterationTrackingC
             } else {
                 move.push(story.id);
             }
+            estimated += story.estimate;
         }
-        $http.put('/iteration/' + $scope.currentIteration, { close: true, closeRelease: closeRelease, move: move, accepted: accepted, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(callback);
+        $http.put('/iteration/' + $scope.currentIteration, { close: true, closeRelease: closeRelease, move: move, accepted: accepted, estimated: estimated, project: Flow.getActiveProjectInfo(), name: Flow.getActiveRelease() }).success(callback);
     };
 });

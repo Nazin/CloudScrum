@@ -53,9 +53,9 @@ router.post('/', function(req, res) {
             endDate: req.body.release.endDate,
             activeIteration: 1,
             iterations: req.body.iterations.length,
-            iterationsStatus: [],
             totalEstimated: req.body.release.totalEstimated,
-            totalAccepted: 0
+            totalAccepted: 0,
+            iterationsStatus: []
         };
 
         fs.mkdirSync(releaseDir);

@@ -42,7 +42,7 @@ var userIterationStatus = function(iterationStatus, owner) {
     }
 };
 
-var updateReleaseStatusFile = function(res, releaseStatusFile, nextIterationId, iterationStatus) {
+var updateReleaseStatusFile = function(res, releaseStatusFile, nextIterationId, iterationStatus, estimationDifference) {
 
     var releaseStatus = JSON.parse(fs.readFileSync(releaseStatusFile, helper.ENCODING));
 
@@ -51,6 +51,11 @@ var updateReleaseStatusFile = function(res, releaseStatusFile, nextIterationId, 
     } else {
         releaseStatus.activeIteration = nextIterationId;
     }
+
+    releaseStatus.totalEstimated += estimationDifference;
+    releaseStatus.totalAccepted += iterationStatus.velocity;
+
+    iterationStatus.toBurn = releaseStatus.totalEstimated - releaseStatus.totalAccepted;
 
     releaseStatus.iterationsStatus.push(iterationStatus);
 
@@ -75,14 +80,16 @@ router.put('/:id', function(req, res) {
             tasksCount: 0,
             totalTasksEstimation: 0,
             totalTasksEffort: 0,
+            toBurn: 0,
             users: {}
         };
 
-        fs.readFile(iterationInfoFile, helper.ENCODING, function(error, data) {
-            var iterationInfo = JSON.parse(data);
-            iterationInfo.closed = true;
-            fs.writeFileSync(iterationInfoFile, helper.prepareForSave(iterationInfo), helper.ENCODING);
-        });
+        var iterationInfo = JSON.parse(fs.readFileSync(iterationInfoFile, helper.ENCODING)), estimationDifference;
+        iterationInfo.closed = true;
+        iterationInfo.onCloseEstimation = req.body.estimated;
+        fs.writeFile(iterationInfoFile, helper.prepareForSave(iterationInfo), helper.ENCODING);
+
+        estimationDifference = iterationInfo.onCloseEstimation - iterationInfo.firstEstimation;
 
         for (i = 0, l = req.body.move.length; i < l; i++) {
             var storyFileName = req.body.move[i] + helper.STORY_SUFFIX;
@@ -121,13 +128,13 @@ router.put('/:id', function(req, res) {
                 }
 
                 if (++acceptedRead === totalAccepted) {
-                    updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus);
+                    updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus, estimationDifference);
                 }
             });
         }
 
         if (totalAccepted === 0) {
-            updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus);
+            updateReleaseStatusFile(res, releaseStatusFile, nextIterationId, iterationStatus, estimationDifference);
         }
     } else {
         res.json(helper.prepareErrorResponse('Bad request'));
