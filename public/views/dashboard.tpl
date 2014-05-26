@@ -1,1 +1,1 @@
-stats or somethig?
+<div ng-include src="'views/partial/iteration-status.tpl'"></div>

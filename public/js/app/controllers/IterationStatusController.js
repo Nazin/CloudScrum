@@ -71,6 +71,8 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
 
     function loadIteration(iteration) {
 
+        $scope.releasepercentageCompleted = ($scope.release.totalAccepted / $scope.release.totalEstimated) * 100;
+
         $rootScope.loading = true;
 
         iteration = iteration || Flow.getActiveIteration();

@@ -183,21 +183,28 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
         }
 
         $rootScope.loading = true;
-        var iterations = [], stories = [], iteration = 1;
+        var iterations = [], stories = [], iteration = 1, totalEstimated = 0, iterationEstimation = 0;
 
         for (var i = 0; i < $scope.stories.length; i++) {
             if (typeof $scope.stories[i].ruler === 'undefined') {
                 stories.push($scope.stories[i].id);
+                totalEstimated += $scope.stories[i].estimate;
+                iterationEstimation += $scope.stories[i].estimate;
             } else {
                 iterations.push({
                     closed: false,
                     stories: stories.slice(0),
                     startDate: moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration - 1)).format('YYYY-MM-DD'),
-                    endDate: moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration++)).format('YYYY-MM-DD')
+                    endDate: moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration++)).format('YYYY-MM-DD'),
+                    firstEstimation: iterationEstimation
                 });
                 stories = [];
+                iterationEstimation = 0;
             }
         }
+
+        $scope.release.totalEstimated = totalEstimated;
+        $scope.release.endDate = moment($scope.release.startDate).add('days', $scope.release.iterationLength * (iteration - 1)).format('YYYY-MM-DD');
 
         $scope.release.error = '';
 

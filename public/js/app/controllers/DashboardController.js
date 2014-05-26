@@ -1,7 +1,11 @@
 'use strict';
 
-cloudScrum.controller('DashboardController', function DashboardController($rootScope) {
+cloudScrum.controller('DashboardController', function DashboardController($rootScope, $scope) {
 
-    $rootScope.loading = false;
+    $scope.releaseData = true;
     $rootScope.selectProject();
+
+    $scope.loadIterationCallback = function(iteration, release) {
+        $rootScope.loading = false;
+    };
 });

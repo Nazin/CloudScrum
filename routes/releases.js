@@ -47,8 +47,19 @@ router.post('/', function(req, res) {
 
     helper.createDir(releasesDir, function() {
 
+        var release = {
+            closed: false,
+            startDate: req.body.release.startDate,
+            endDate: req.body.release.endDate,
+            activeIteration: 1,
+            iterations: req.body.iterations.length,
+            iterationsStatus: [],
+            totalEstimated: req.body.release.totalEstimated,
+            totalAccepted: 0
+        };
+
         fs.mkdirSync(releaseDir);
-        fs.writeFile(path.join(releaseDir, helper.RELEASE_STATUS_FILE), helper.prepareForSave({closed: false, activeIteration: 1, iterations: req.body.iterations.length, iterationsStatus: []}), helper.ENCODING);
+        fs.writeFile(path.join(releaseDir, helper.RELEASE_STATUS_FILE), helper.prepareForSave(release), helper.ENCODING);
 
         for (var i = 0, l = req.body.iterations.length; i < l; i++) {
 
