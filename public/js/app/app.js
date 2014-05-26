@@ -1,6 +1,6 @@
 'use strict';
 
-var cloudScrum = angular.module('cloudScrum', ['ngRoute', 'ngSanitize', 'ngStorage', 'ui.sortable', 'growlNotifications', 'angularCharts']);
+var cloudScrum = angular.module('cloudScrum', ['ngRoute', 'ngSanitize', 'ngStorage', 'ui.sortable', 'growlNotifications', 'highcharts-ng']);
 
 cloudScrum.config(function($routeProvider) {
 
