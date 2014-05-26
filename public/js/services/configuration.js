@@ -4,7 +4,7 @@ cloudScrum.service('Configuration', function Configuration($q, $http,Flow) {
 
     var self = this, configurationReceived = false, defaultConfiguration = {
         storiesStatuses: ['', 'In progress', 'Blocked', 'Completed', 'Accepted'],
-        taskStatuses: ['', 'In progress', 'Testing', 'Blocked', 'Completed'],
+        tasksStatuses: ['', 'In progress', 'Testing', 'Blocked', 'Completed'],
         updateStoryStatusOnAllTaskCompletion: 3
     }, configuration = {}, users = [];
 
@@ -28,6 +28,11 @@ cloudScrum.service('Configuration', function Configuration($q, $http,Flow) {
         return deferred.promise;
     };
 
+    self.saveConfiguration = function(configurationKey, data, callback) {
+        configuration[configurationKey] = data;
+        $http.put('/configuration', { configuration: configurationKey, data: data, project: Flow.getActiveProjectInfo() }).success(callback);
+    };
+
     self.getStoriesStatuses = function() {
         return configuration.storiesStatuses || defaultConfiguration.storiesStatuses;
     };
@@ -38,7 +43,7 @@ cloudScrum.service('Configuration', function Configuration($q, $http,Flow) {
     };
 
     self.getTasksStatuses = function() {
-        return configuration.taskStatuses || defaultConfiguration.taskStatuses;
+        return configuration.tasksStatuses || defaultConfiguration.tasksStatuses;
     };
 
     self.getUpdateStoryStatusOnAllTaskCompletion = function() {

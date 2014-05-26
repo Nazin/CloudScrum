@@ -27,7 +27,7 @@
                 <li class="dropdown">
                     <a href="" class="dropdown-toggle" data-toggle="dropdown">User <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Settings</a></li>
+                        <li><a href="#/configuration">Configuration</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Projects</li>
                         <li ng-repeat="project in projects"><a href="" ng-click="loadProject($index)">{{ project.name }}</a></li>
@@ -109,6 +109,7 @@
     <script src="js/app/controllers/IterationStatusController.js"></script>
     <script src="js/app/controllers/TaskBoardController.js"></script>
     <script src="js/app/controllers/IterationUpdateController.js"></script>
+    <script src="js/app/controllers/ConfigurationController.js"></script>
     <script src="js/services/ngStorage.js"></script>
     <script src="js/services/flow.js"></script>
     <script src="js/services/configuration.js"></script>

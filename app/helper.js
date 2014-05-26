@@ -10,6 +10,7 @@ module.exports = {
     ID_FILE: 'id',
     ITERATION_INFO_FILE: 'info.json',
     RELEASE_STATUS_FILE: 'status.json',
+    CONFIG_FILE: 'configuration.json',
 
     STORY_SUFFIX: '.story.json',
 

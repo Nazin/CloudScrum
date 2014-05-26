@@ -25,6 +25,10 @@ $.fn.extend({
         return true;
     },
 
+    isBlocked: function() {
+        return this.data('blocked');
+    },
+
     unblock: function() {
 
         this.removeData('blocked');

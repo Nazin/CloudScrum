@@ -28,6 +28,10 @@ cloudScrum.config(function($routeProvider) {
         controller: 'TaskBoardController',
         templateUrl: 'views/task-board.tpl',
         title: 'Task board'
+    }).when('/configuration', {
+        controller: 'ConfigurationController',
+        templateUrl: 'views/configuration.tpl',
+        title: 'Configuration'
     });
 });
 
