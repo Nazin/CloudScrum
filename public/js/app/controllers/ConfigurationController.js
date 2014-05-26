@@ -57,7 +57,7 @@ cloudScrum.controller('ConfigurationController', function ConfigurationControlle
 
             Configuration.saveConfiguration(configuration, $scope[configuration], function() {
                 form(configuration).unblock();
-                growlNotifications.add('Configuration saved', 'success', 2000);
+                growlNotifications.add('Configuration has been saved', 'success', 2000);
             });
         });
     };
