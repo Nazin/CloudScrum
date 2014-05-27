@@ -13,6 +13,11 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
     $scope.newStoryModal = $('#new-story-modal');
     $scope.newTaskModal = $('#new-task-modal');
     $scope.newReleaseModal = $('#new-release-modal');
+    $scope.autoPlanModal = $('#auto-plan-modal');
+
+    $scope.autoPlanningError = '';
+    $scope.autoIterations = 5;
+    $scope.velocities = [];
 
     $scope.release = {
         error: '',
@@ -156,6 +161,111 @@ cloudScrum.controller('BacklogController', function BacklogController($rootScope
                 break;
             }
         }
+    };
+
+    $scope.grabVelocities = function(event) {
+
+        var element = $(event.target);
+
+        if (!element.blockElement()) {
+            return;
+        }
+
+        $scope.autoPlanningError = '';
+
+        $http.get('/releases', { params: { path: Flow.getActiveProjectInfo().path } }).success(function(releases) {
+
+            element.unblockElement();
+
+            if (Object.keys(releases).length === 0) {
+                $scope.autoPlanningError = 'There are no closed releases';
+                return;
+            }
+
+            for (var releaseName in releases) {
+
+                if (releases[releaseName].closed) {
+
+                    var sum = 0, max = 0, min = 999999;
+
+                    for (var i = 0, l = releases[releaseName].iterationsStatus.length; i < l; i++) {
+                        var velocity = releases[releaseName].iterationsStatus[i].velocity;
+                        sum += velocity;
+                        if (velocity > max) {
+                            max = velocity;
+                        }
+                        if (velocity < min) {
+                            min = velocity;
+                        }
+                    }
+
+                    $scope.velocities.push({
+                        name: releaseName,
+                        velocity: {
+                            average: Math.round(sum / releases[releaseName].iterationsStatus.length),
+                            min: min,
+                            max: max
+                        }
+                    });
+                }
+            }
+
+            if ($scope.velocities.length === 0) {
+                $scope.autoPlanningError = 'There are no closed releases';
+            }
+        });
+    };
+
+    $scope.autoPlanRelease = function() {
+
+        if ($scope.autoIterations <= 0) {
+            $scope.autoPlanningError = 'At least one iteration required';
+            return;
+        }
+
+        if ($scope.velocity <= 0) {
+            $scope.autoPlanningError = 'Velocity it too low';
+            return;
+        }
+
+        $scope.autoPlanningError = '';
+
+        if (!$scope.autoPlanModal.block()) {
+            return;
+        }
+
+        var i, l, iterationSum, start = 0, iterations = $scope.autoIterations;
+
+        for (i = $scope.stories.length - 1; i >= 0; i--) {
+            if (typeof $scope.stories[i].ruler !== 'undefined') {
+                $scope.stories.splice(i, 1);
+            }
+        }
+
+        $scope.iterations = 0;
+
+        while (iterations--) {
+
+            iterationSum = 0;
+
+            for (i = start, l = $scope.stories.length; i < l; i++) {
+
+                if (iterationSum !== 0 && iterationSum + $scope.stories[i].estimate > $scope.velocity) {
+                    $scope.stories.splice(i, 0, {ruler: true, points: iterationSum, iteration: ++$scope.iterations});
+                    start = i + 1;
+                    break;
+                }
+
+                iterationSum += $scope.stories[i].estimate;
+            }
+        }
+
+        if ($scope.autoIterations !== $scope.iterations) {
+            $scope.stories.push({ruler: true, points: iterationSum, iteration: ++$scope.iterations});
+        }
+
+        $scope.autoPlanModal.modal('hide');
+        $scope.autoPlanModal.unblock();
     };
 
     $scope.saveRelease = function() {
