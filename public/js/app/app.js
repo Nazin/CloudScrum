@@ -32,6 +32,8 @@ cloudScrum.config(function($routeProvider) {
         controller: 'ConfigurationController',
         templateUrl: 'views/configuration.tpl',
         title: 'Configuration'
+    }).otherwise({
+        redirectTo: '/backlog'
     });
 });
 
@@ -91,7 +93,7 @@ cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration, growl
     $rootScope.loadProject = function(index) {
         Flow.setActiveProject(index);
         Configuration.loadConfiguration(true);
-        $location.path('/');
+        $location.path('/backlog/' + index);
     };
 
     $rootScope.selectProject = function(redirect) {
@@ -100,13 +102,13 @@ cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration, growl
 
         if (typeof Flow.getActiveProject() !== 'undefined') {
             if (redirect) {
-                $location.path('/');
+                $location.path('/backlog');
             }
         } else {
             if ($rootScope.projects.length === 1) {
                 Flow.setActiveProject();
                 if (redirect) {
-                    $location.path('/');
+                    $location.path('/backlog');
                 }
             } else {
                 growlNotifications.add('Please choose project', 'warning', 2000);
@@ -124,7 +126,9 @@ cloudScrum.run(function($rootScope, $location, $http, Flow, Configuration, growl
     });
 
     $rootScope.$on('$routeChangeSuccess', function(event, current) {
-        $rootScope.page = current.$$route.controller;
-        $rootScope.title = current.$$route.title;
+        if (typeof current.$$route !== 'undefined') {
+            $rootScope.page = current.$$route.controller;
+            $rootScope.title = current.$$route.title;
+        }
     });
 });
