@@ -17,6 +17,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
             $location.path('/backlog');
         } else {
             getIterations();
+            loadIteration();
         }
     });
 
@@ -33,8 +34,6 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
         $scope.changeRelease();
     });
 
-    loadIteration();
-
     $scope.changeRelease = function() {
         Flow.setActiveRelease($scope.release, $scope.releases[$scope.release].activeIteration);
         getIterations();
@@ -49,6 +48,14 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
     var getIterations = function() {
         $scope.iterations = [];
         var release = $scope.releases[$scope.release];
+        if (typeof release === 'undefined') {
+            $scope.release = Object.keys($scope.releases)[0];
+            release = $scope.releases[$scope.release];
+            Flow.setActiveRelease($scope.release, release.activeIteration);
+        }
+        if (isNaN($scope.iteration)) {
+            $scope.iteration = release.activeIteration - 1;
+        }
         for (var i = 0; i < $scope.releases[$scope.release].iterations; i++) {
             $scope.iterations.push('Iteration ' + (i + 1) + ( i < $scope.releases[$scope.release].activeIteration - 1 || release.closed ? ' (Closed)' : '' ));
         }
@@ -82,7 +89,7 @@ cloudScrum.controller('IterationStatusController', function IterationStatusContr
 
         $rootScope.loading = true;
 
-        iteration = iteration || Flow.getActiveIteration();
+        iteration = iteration || Flow.getActiveIteration() || $scope.releases[$scope.release].activeIteration;
 
         if (iteration !== Flow.getActiveIteration()) {
             Flow.setActiveIteration(iteration);
