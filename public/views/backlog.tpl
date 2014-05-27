@@ -171,6 +171,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-danger" ng-show="release.error !== ''">{{ release.error }}</div>
+                    <div class="alert alert-info">Please make sure that all files are synchronized with your cloud before adding the release.</div>
                     <div class="form-group">
                         <label for="releaseName" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
