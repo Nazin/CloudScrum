@@ -43,7 +43,7 @@ router.post('/', function(req, res) {
             fs.writeFileSync(path.join(backlogDir, nextId + helper.STORY_SUFFIX), helper.prepareForSave(req.body.story), helper.ENCODING);
             fs.writeFileSync(idFile, ++nextId, helper.ENCODING);
 
-            res.json(helper.prepareSuccessResponse({id: 0}));
+            res.json(helper.prepareSuccessResponse({id: req.body.story.id}));
         });
     });
 });
