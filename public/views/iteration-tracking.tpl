@@ -80,7 +80,7 @@
     <div class="modal fade" id="new-task-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form role="form" class="form-horizontal" name="newTaskForm" novalidate>
+                <form role="form" class="form-horizontal" name="newTaskForm" novalidate ng-submit="newTaskForm.$valid && !iteration.closed && saveTask()">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">New task</h4>
@@ -121,7 +121,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid || iteration.closed" ng-click="saveTask()">Add</button>
+                        <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid || iteration.closed">Add</button>
                     </div>
                 </form>
             </div>

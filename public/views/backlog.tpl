@@ -84,7 +84,7 @@
 <div class="modal fade" id="new-story-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form role="form" class="form-horizontal" name="newStoryForm" novalidate>
+            <form role="form" class="form-horizontal" name="newStoryForm" novalidate ng-submit="newStoryForm.$valid && saveStory()">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">New story</h4>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" ng-disabled="newStoryForm.$invalid" ng-click="saveStory()">Add</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="newStoryForm.$invalid">Add</button>
                 </div>
             </form>
         </div>
@@ -127,7 +127,7 @@
 <div class="modal fade" id="new-task-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form role="form" class="form-horizontal" name="newTaskForm" novalidate>
+            <form role="form" class="form-horizontal" name="newTaskForm" novalidate ng-submit="newTaskForm.$valid && saveTask()">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">New task</h4>
@@ -154,7 +154,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid" ng-click="saveTask()">Add</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="newTaskForm.$invalid">Add</button>
                 </div>
             </form>
         </div>
@@ -164,7 +164,7 @@
 <div class="modal fade" id="new-release-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form role="form" class="form-horizontal" name="newReleaseForm" novalidate>
+            <form role="form" class="form-horizontal" name="newReleaseForm" novalidate ng-submit="newReleaseForm.$valid && createRelease()">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">New release</h4>
@@ -194,7 +194,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" ng-disabled="newReleaseForm.$invalid" ng-click="createRelease()">Add</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="newReleaseForm.$invalid">Add</button>
                 </div>
             </form>
         </div>
@@ -204,7 +204,7 @@
 <div class="modal fade" id="auto-plan-modal" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form role="form" class="form-horizontal" name="autoPlanForm" novalidate>
+            <form role="form" class="form-horizontal" name="autoPlanForm" novalidate ng-submit="autoPlanForm.$valid && autoPlanRelease()">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Auto planning</h4>
@@ -242,7 +242,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" ng-disabled="autoPlanForm.$invalid" ng-click="autoPlanRelease()">Auto plan</button>
+                    <button type="submit" class="btn btn-primary" ng-disabled="autoPlanForm.$invalid">Auto plan</button>
                 </div>
             </form>
         </div>
