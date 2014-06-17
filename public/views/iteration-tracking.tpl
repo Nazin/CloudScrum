@@ -95,7 +95,7 @@
                         <div class="form-group">
                             <label for="taskEstimate" class="col-sm-2 control-label">Estimate</label>
                             <div class="col-xs-3">
-                                <input type="number" min="1" class="form-control" id="taskEstimate" ng-model="task.estimate" required ng-readonly="iteration.closed">
+                                <input placeholder="h" type="number" min="1" class="form-control" id="taskEstimate" ng-model="task.estimate" required ng-readonly="iteration.closed">
                             </div>
                         </div>
                         <div class="form-group">
