@@ -9,9 +9,9 @@ The aim of this app is to use any cloud (Google Drive, Dropbox, etc) that would 
 
 This app requires node.js to work. After installation, run the following commands in the application directory:
 
-```
-npm install
-node server.js
+```sh
+$ npm install
+$ node server.js
 ```
 
 After these steps the app should be accessible at this address: [localhost:1337](http://localhost:1337).
