@@ -7,7 +7,7 @@ The aim of this app is to use any cloud (Google Drive, Dropbox, etc) that would 
 
 ## Getting Started
 
-This app requires node.js to work. After installation, run the following commands in the application directory:
+This app requires [node.js](http://nodejs.org) to work. After installation, run the following commands in the application directory:
 
 ```sh
 $ npm install
