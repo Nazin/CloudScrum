@@ -10,5 +10,11 @@
     "dependencies" : {
         "express"    : "~4.3.0",
         "body-parser": "~1.0.0"
+    },
+    "devDependencies": {
+        "grunt": "latest",
+        "grunt-contrib-watch": "latest",
+        "grunt-contrib-less": "latest",
+        "matchdep": "latest"
     }
 }
